@@ -8,7 +8,7 @@ Name: 		gnustep-base
 Version: 	%{ver}
 Release: 	1
 Source: 	ftp://ftp.gnustep.org/pub/gnustep/core/gstep-base-%{ver}.tar.gz
-Patch:          gstep-base-0.6.0-unicode.patch
+Patch:          gstep-base-unicode.patch
 Copyright: 	GPL
 Group: 		Development/Tools
 Summary: 	GNUstep Base library package

@@ -16,6 +16,7 @@ BuildRequires:	ffcall-devel
 BuildRequires:	gcc-objc
 BuildRequires:	gmp-devel
 %{!?_without_doc:BuildRequires:	gnustep-base-devel}
+%{!?_without_doc:BuildRequires: docbook-dtd41-sgml}
 BuildRequires:	gnustep-make-devel >= 1.5.1
 BuildRequires:	libxml2 >= 2.3.0
 BuildRequires:	openssl-devel
@@ -124,7 +125,7 @@ case "\$1" in
   start)
 	if [ ! -f /var/lock/subsys/gnustep ]; then
 		msg_starting "gnustep services"
-		daemon %{_prefix}/Tools/%{gscpu}/%{gsos}/gdomap
+		daemon %{_prefix}/System/Tools/%{gscpu}/%{gsos}/gdomap
 		RETVAL=$?
 		[ $RETVAL -eq 0 ] && touch /var/lock/subsys/gnustep
 	else

@@ -8,8 +8,7 @@ Name:		gnustep-base
 Version:	1.5.1
 Release:	1
 License:	LGPL/GPL
-Vendor:		The GNUstep Project
-Group:		Development/Tools
+Group:		Libraries
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
 Patch0:		%{name}-link.patch
 URL:		http://www.gnustep.org/

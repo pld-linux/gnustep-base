@@ -5,7 +5,7 @@
  libgnustep-base_LIBRARIES_DEPEND_UPON += -lobjc
  endif
 +ifeq ($(GNUSTEP_TARGET_OS),linux-gnu)
-+libgnustep-base_LIBRARIES_DEPEND_UPON += -lobjc $(CONFIG_SYSTEM_LIBS)
++libgnustep-base_LIBRARIES_DEPEND_UPON += -lobjc -ldl $(CONFIG_SYSTEM_LIBS)
 +endif
  ifeq ($(findstring darwin, $(GNUSTEP_TARGET_OS)), darwin)
  libgnustep-base_LIBRARIES_DEPEND_UPON += $(CONFIG_SYSTEM_LIBS) \

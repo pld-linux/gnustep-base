@@ -1,4 +1,5 @@
 Summary:	GNUstep Base library package
+Summary(pl):	Podstawowa biblioteka GNUstep
 Name:		gnustep-base
 Version:	0.6.0
 Release:	1
@@ -14,6 +15,7 @@ URL:		http://www.gnustep.org/
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 Conflicts:	gnustep-core
 Requires:	gnustep-make
+Prereq:		/sbin/chkconfig
 
 %description
 The GNUstep Base Library is a library of general-purpose,
@@ -24,8 +26,16 @@ network ports, remote object messaging support (distributed objects),
 event loops, and random number generators. Library combo is
 %{libcombo}. %{_buildblurb}
 
+%description -l pl
+Podstawowa biblioteka GNUstep jest bibliotek± innych ni¿ graficzne
+obiektów ogólnego przeznaczenia dla Objective C. Zawiera np. klasy dla
+stringów, kolekcji, strumieni, koderów typów, powiadamiania, portów
+sieci, obiektów rozproszonych, pêtli zdarzeñ, generatorów liczb
+losowych.
+
 %package devel
-Summary:	GNUstep Base headers and development libs.
+Summary:	GNUstep Base headers
+Summary(pl):	Pliki nag³ówkowe podstawowej biblioteki GNUstep
 Group:		Development/Libraries
 Group(de):	Entwicklung/Libraries
 Group(fr):	Development/Librairies
@@ -36,6 +46,10 @@ Conflicts:	gnustep-core
 %description devel
 Header files required to build applications against the GNUstep Base
 library. Library combo is %{libcombo}. %{_buildblurb}
+
+%description devel -l pl
+Pliki nag³ówkowe potrzebne do budowania aplikacji u¿ywaj±cych
+podstawowej biblioteki GNUstep.
 
 %prep
 %setup -q -n gstep-%{ver}/base
@@ -161,6 +175,9 @@ sed -e "s|GSARCH|${GNUSTEP_HOST_CPU}|" -e "s|GSOS|${GNUSTEP_HOST_OS}|" < filelis
 
 echo 'GMT' > $RPM_BUILD_ROOT/%{_prefix}/GNUstep/Libraries/Resources/NSTimeZones/localtime
 
+%clean
+rm -rf $RPM_BUILD_ROOT
+
 %post
 if [ -z "$GNUSTEP_SYSTEM_ROOT" ]; then
    . %{_prefix}/GNUstep/Makefiles/GNUstep.sh 
@@ -183,7 +200,6 @@ if [ $1 = 0 ]; then
     rm -f /etc/services.orig
 fi
 
-
 %postun
 if [ -z "$GNUSTEP_SYSTEM_ROOT" ]; then
    . %{_prefix}/GNUstep/Makefiles/GNUstep.sh 
@@ -197,10 +213,8 @@ if [ $1 = 0 ]; then
 %endif
 fi
 
-%clean
-rm -rf $RPM_BUILD_ROOT
-
 %files -f filelist.rpm
 %defattr(644,root,root,755)
+
 %files -f filelist-devel.rpm devel
 %defattr(644,root,root,755)

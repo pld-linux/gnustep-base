@@ -8,13 +8,29 @@ Vendor:		The Seawood Project
 Group:		Development/Tools
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
 URL:		http://www.gnustep.org/
-BuildRequires:	gnustep-make-devel >=1.5.1
-BuildRequires:	libxml2 >= 2.2.3
-BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
-Conflicts:	gnustep-core
+BuildRequires:	gcc-objc
+BuildRequires:	gmp-devel
+BuildRequires:	gnustep-make-devel >= 1.5.1
+BuildRequires:	libxml2 >= 2.3.0
+BuildRequires:	openssl-devel
+BuildRequires:	zlib-devel
+Requires(post,preun):	grep
+Requires(post,preun):	/sbin/chkconfig
+Requires(post,postun):	/sbin/ldconfig
 Requires:	gnustep-make
-Prereq:		/sbin/chkconfig
-%define         _prefix         /usr
+Conflicts:	gnustep-core
+BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
+
+%define         _prefix         /usr/lib/GNUstep
+
+%define		libcombo	gnu-gnu-gnu
+%define		gsos		linux-gnu
+%ifarch %{ix86}
+%define		gscpu		ix86
+%else
+# also s/alpha.*/alpha/, but we use only "alpha" arch for now
+%define		gscpu		%{_target_cpu}
+%endif
 
 %description
 The GNUstep Base Library is a library of general-purpose,
@@ -22,8 +38,7 @@ non-graphical Objective C objects. For example, it includes classes
 for strings, object collections, byte streams, typed coders,
 invocations, notifications, notification dispatchers, moments in time,
 network ports, remote object messaging support (distributed objects),
-event loops, and random number generators. Library combo is
-%{libcombo}. %{_buildblurb}
+event loops, and random number generators.
 
 %description -l pl
 Podstawowa biblioteka GNUstep jest bibliotek± innych ni¿ graficzne
@@ -36,12 +51,13 @@ losowych.
 Summary:	GNUstep Base headers
 Summary(pl):	Pliki nag³ówkowe podstawowej biblioteki GNUstep
 Group:		Development/Libraries
-Requires:	%{name} = %{version}, gnustep-make-devel
+Requires:	%{name} = %{version}
+Requires:	gnustep-make-devel
 Conflicts:	gnustep-core
 
 %description devel
 Header files required to build applications against the GNUstep Base
-library. Library combo is %{libcombo}. %{_buildblurb}
+library.
 
 %description devel -l pl
 Pliki nag³ówkowe potrzebne do budowania aplikacji u¿ywaj±cych
@@ -51,30 +67,27 @@ podstawowej biblioteki GNUstep.
 %setup -q
 
 %build
-rm -f missing
-%{__gettextize}
-%{__libtoolize}
-%{__aclocal}
-%{__autoheader}
-%{__autoconf}
+. %{_prefix}/System/Makefiles/GNUstep.sh
 %configure
-#if [ -z "$GNUSTEP_SYSTEM_ROOT" ]; then
-#   . %{_prefix}/GNUstep/System/Makefiles/GNUstep.sh
-#fi
-#CFLAGS="%{rpmcflags}" ./configure --prefix=%{_prefix}/GNUstep
-# --with-library-combo=%{libcombo}
 
+# TODO: fix libgnustep-base linking (-lobjc -ldl -lm -lz -lxml2)
 %{__make}
+
+# requires already installed gnustep-base
+#%{__make} -C Documentation
 
 %install
 rm -rf $RPM_BUILD_ROOT
-if [ -z "$GNUSTEP_SYSTEM_ROOT" ]; then
-   . %{_prefix}/GNUstep/System/Makefiles/GNUstep.sh
-fi
-%{__make} install GNUSTEP_INSTALLATION_DIR=${RPM_BUILD_ROOT}%{_prefix}/GNUstep
+. %{_prefix}/System/Makefiles/GNUstep.sh
+%{__make} install \
+	INSTALL_ROOT_DIR=$RPM_BUILD_ROOT \
+	GNUSTEP_INSTALLATION_DIR=$RPM_BUILD_ROOT%{_prefix}/System
 
-%ifos Linux
-cat > mygnustep.init.in << EOF
+#%{__make} -C Documentation install \
+#	GNUSTEP_INSTALLATION_DIR=$RPM_BUILD_ROOT%{_prefix}/System
+
+install -d $RPM_BUILD_ROOT/etc/rc.d/init.d
+cat > $RPM_BUILD_ROOT/etc/rc.d/init.d/gnustep << EOF
 #!/bin/sh
 #
 # gnustep daemons
@@ -87,138 +100,142 @@ cat > mygnustep.init.in << EOF
 
 case "\$1" in
   start)
-        echo -n "Starting gnustep services: "
-        daemon %{_prefix}/GNUstep/Tools/GSARCH/GSOS/gdomap
-        echo
-        touch /var/lock/subsys/gnustep
-        ;;
-
+	if [ ! -f /var/lock/subsys/gnustep ]; then
+		msg_starting "gnustep services"
+		daemon %{_prefix}/Tools/%{gscpu}/%{gsos}/gdomap
+		RETVAL=$?
+		[ $RETVAL -eq 0 ] && touch /var/lock/subsys/gnustep
+	else
+		msg_already_running "gnustep services"
+		exit 1
+	fi
+	;;
   stop)
-        echo -n "Stopping gnustep services: "
-        killproc gdomap
-        echo
-        rm -f /var/lock/subsys/gnustep
-        ;;
-
+	if [ -f /var/lock/subsys/gnustep ]; then
+		msg_stopping "gnustep services"
+		killproc gdomap
+		RETVAL=$?
+		rm -f /var/lock/subsys/gnustep
+	else
+		msg_not_running "gnustep services"
+		exit 1
+	fi
+	;;
    status)
-        status gdomap
+	status gdomap
+	RETVAL=$?
         ;;
-
    restart|reload)
-        \$0 stop
-        \$0 start
-        ;;
-
+	\$0 stop
+	\$0 start
+	;;
     *)
-        echo "Usage: gnustep {start|stop|status|restart|reload}"
+        msg_usage "$0 {start|stop|status|restart|reload}"
         exit 1
 esac
+
+exit $RETVAL
 EOF
 
-sed -e "s|GSARCH|${GNUSTEP_HOST_CPU}|g" -e "s|GSOS|${GNUSTEP_HOST_OS}|g" < mygnustep.init.in > mygnustep.init
-install -d ${RPM_BUILD_ROOT}/etc/rc.d/init.d
-mv -f mygnustep.init ${RPM_BUILD_ROOT}/etc/rc.d/init.d/gnustep
-%endif
+echo 'GMT' > $RPM_BUILD_ROOT%{_prefix}/System/Libraries/Resources/NSTimeZones/localtime
 
-cat > filelist.rpm.in << EOF
-%defattr (-, root, root)
-%doc ANNOUNCE AUTHORS COPYING* ChangeLog* INSTALL* NEWS README Version
-%config %{_prefix}/GNUstep/Libraries/Resources/NSTimeZones/localtime
-%ifos Linux
-%config /etc/rc.d/init.d/gnustep
-%endif
-
-%dir %{_prefix}/GNUstep/Libraries
-%dir %{_prefix}/GNUstep/Libraries/Resources
-%dir %{_prefix}/GNUstep/Libraries/Resources/NSTimeZones
-%dir %{_prefix}/GNUstep/Libraries/GSARCH
-%dir %{_prefix}/GNUstep/Libraries/GSARCH/GSOS
-%dir %{_prefix}/GNUstep/Libraries/GSARCH/GSOS/%{libcombo}
-%dir %{_prefix}/GNUstep/Tools
-%dir %{_prefix}/GNUstep/Tools/GSARCH
-%dir %{_prefix}/GNUstep/Tools/GSARCH/GSOS
-%dir %{_prefix}/GNUstep/Tools/GSARCH/GSOS/%{libcombo}
-
-%{_prefix}/GNUstep/Libraries/Resources/NSCharacterSets
-%{_prefix}/GNUstep/Libraries/Resources/NSTimeZones/README
-%{_prefix}/GNUstep/Libraries/Resources/NSTimeZones/abbreviations
-%{_prefix}/GNUstep/Libraries/Resources/NSTimeZones/regions
-%{_prefix}/GNUstep/Libraries/Resources/NSTimeZones/zones
-%{_prefix}/GNUstep/Libraries/Resources/NSTimeZones/*.m
-%{_prefix}/GNUstep/Libraries/GSARCH/GSOS/%{libcombo}/lib*.so.*
-
-%{_prefix}/GNUstep/Tools/dread
-%{_prefix}/GNUstep/Tools/dwrite
-%{_prefix}/GNUstep/Tools/dremove
-%{_prefix}/GNUstep/Tools/gdnc
-%{_prefix}/GNUstep/Tools/plparse
-%{_prefix}/GNUstep/Tools/sfparse
-%{_prefix}/GNUstep/Tools/pldes
-%{_prefix}/GNUstep/Tools/plser
-%{_prefix}/GNUstep/Tools/GSARCH/GSOS/%{libcombo}/*
-
-%attr(4755, root, root) %{_prefix}/GNUstep/Tools/GSARCH/GSOS/gdomap
-
-EOF
-
-cat > filelist-devel.rpm.in  << EOF
-%defattr(-, root, root)
-%dir %{_prefix}/GNUstep/Headers
-%dir %{_prefix}/GNUstep/Headers/gnustep
-
-%{_prefix}/GNUstep/Headers/gnustep/Foundation
-%{_prefix}/GNUstep/Headers/gnustep/base
-%{_prefix}/GNUstep/Headers/gnustep/unicode
-%{_prefix}/GNUstep/Headers/GSARCH
-%{_prefix}/GNUstep/Libraries/GSARCH/GSOS/%{libcombo}/lib*.so
-
-EOF
-
-sed -e "s|GSARCH|${GNUSTEP_HOST_CPU}|" -e "s|GSOS|${GNUSTEP_HOST_OS}|" < filelist.rpm.in > filelist.rpm
-sed -e "s|GSARCH|${GNUSTEP_HOST_CPU}|" -e "s|GSOS|${GNUSTEP_HOST_OS}|" < filelist-devel.rpm.in > filelist-devel.rpm
-
-echo 'GMT' > $RPM_BUILD_ROOT/%{_prefix}/GNUstep/Libraries/Resources/NSTimeZones/localtime
+# not (yet?) supported by rpm-compress-doc
+find $RPM_BUILD_ROOT%{_prefix}/System/Documentation/Developer -type f | xargs gzip -9nf
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %post
-if [ -z "$GNUSTEP_SYSTEM_ROOT" ]; then
-   . %{_prefix}/GNUstep/Makefiles/GNUstep.sh
+umask 022
+if ! grep -q '^gdomap' /etc/services ; then
+	echo "gdomap 538/tcp # GNUstep distrib objects" >> /etc/services
+	echo "gdomap 538/udp # GNUstep distrib objects" >> /etc/services
 fi
-grep -q '^gdomap' /etc/services || (echo "gdomap 538/tcp # GNUstep distrib objects" >> /etc/services && echo "gdomap 538/udp # GNUstep distrib objects" >> /etc/services)
-%ifos Linux
-grep -q '%{_prefix}/GNUstep/Libraries/$GNUSTEP_HOST_CPU/$GNUSTEP_HOST_OS/gnu-gnu-gnu-xgps' /etc/ld.so.conf || echo "%{_prefix}/GNUstep/Libraries/$GNUSTEP_HOST_CPU/$GNUSTEP_HOST_OS/%{libcombo}" >> /etc/ld.so.conf
+if ! grep -q '%{_prefix}/Libraries/%{gscpu}/%{gsos}/%{libcombo}' \
+    /etc/ld.so.conf ; then
+	echo "%{_prefix}/Libraries/%{gscpu}/%{gsos}/%{libcombo}" >> /etc/ld.so.conf
+fi
 /sbin/ldconfig
 /sbin/chkconfig --add gnustep
-%endif
+if [ -f /var/lock/subsys/gnustep ]; then
+	/etc/rc.d/init.d/gnustep restart 1>&2
+else
+	echo "Run \"/etc/rc.d/init.d/gnustep start\" to start gnustep services."
+fi
 
 %preun
-if [ -z "$GNUSTEP_SYSTEM_ROOT" ]; then
-   . %{_prefix}/GNUstep/Makefiles/GNUstep.sh
-fi
-if [ $1 = 0 ]; then
-    /sbin/chkconfig --del gnustep
-    mv -f /etc/services /etc/services.orig
-    grep -v "^gdomap 538" /etc/services.orig > /etc/services
-    rm -f /etc/services.orig
+if [ "$1" = "0" ]; then
+	if [ -f /var/lock/subsys/gnustep ]; then
+		/etc/rc.d/init.d/gnustep stop 1>&2
+	fi
+	/sbin/chkconfig --del gnustep
 fi
 
 %postun
-if [ -z "$GNUSTEP_SYSTEM_ROOT" ]; then
-   . %{_prefix}/GNUstep/Makefiles/GNUstep.sh
-fi
-if [ $1 = 0 ]; then
-%ifos Linux
-    mv -f /etc/ld.so.conf /etc/ld.so.conf.orig
-    grep -v "^%{_prefix}/GNUstep/Libraries/$GNUSTEP_HOST_CPU/$GNUSTEP_HOST_OS/%{libcombo}$" /etc/ld.so.conf.orig > /etc/ld.so.conf
-    rm -f /etc/ld.so.conf.orig
-    /sbin/ldconfig
-%endif
+if [ "$1" = "0" ]; then
+	grep -v "^%{_prefix}/Libraries/%{gscpu}/%{gsos}/%{libcombo}$" /etc/ld.so.conf \
+		> /etc/ld.so.conf.tmp
+	mv -f /etc/ld.so.conf.tmp /etc/ld.so.conf
+	/sbin/ldconfig
 fi
 
-%files -f filelist.rpm
+%files
 %defattr(644,root,root,755)
+%doc ChangeLog* NEWS README
+%attr(754,root,root) /etc/rc.d/init.d/gnustep
 
-%files -f filelist-devel.rpm devel
+%{_prefix}/System/Libraries/Resources/DocTemplates
+%{_prefix}/System/Libraries/Resources/DTDs
+%{_prefix}/System/Libraries/Resources/NSCharacterSets
+%dir %{_prefix}/System/Libraries/Resources/NSTimeZones
+%{_prefix}/System/Libraries/Resources/NSTimeZones/GNUmakefile
+%{_prefix}/System/Libraries/Resources/NSTimeZones/GNUstep_zones
+%{_prefix}/System/Libraries/Resources/NSTimeZones/README
+%{_prefix}/System/Libraries/Resources/NSTimeZones/abbreviations
+%{_prefix}/System/Libraries/Resources/NSTimeZones/regions
+%{_prefix}/System/Libraries/Resources/NSTimeZones/zones
+%{_prefix}/System/Libraries/Resources/NSTimeZones/*.m
+%config(noreplace) %verify(not size mtime md5) %{_prefix}/System/Libraries/Resources/NSTimeZones/localtime
+%{_prefix}/System/Libraries/Resources/English.lproj
+%lang(fr) %{_prefix}/System/Libraries/Resources/French.lproj
+%lang(de) %{_prefix}/System/Libraries/Resources/German.lproj
+%lang(it) %{_prefix}/System/Libraries/Resources/Italian.lproj
+%dir %{_prefix}/System/Libraries/Resources/Languages
+%{_prefix}/System/Libraries/Resources/Languages/Locale.*
+%lang(nl) %{_prefix}/System/Libraries/Resources/Languages/Dutch
+%{_prefix}/System/Libraries/Resources/Languages/English
+%lang(fr) %{_prefix}/System/Libraries/Resources/Languages/French
+%lang(de) %{_prefix}/System/Libraries/Resources/Languages/German
+%lang(it) %{_prefix}/System/Libraries/Resources/Languages/Italian
+%lang(ru) %{_prefix}/System/Libraries/Resources/Languages/Russian
+%lang(sk) %{_prefix}/System/Libraries/Resources/Languages/Slovak
+%lang(uk) %{_prefix}/System/Libraries/Resources/Languages/UkraineRussian
+
+%dir %{_prefix}/System/Libraries/%{gscpu}
+%dir %{_prefix}/System/Libraries/%{gscpu}/%{gsos}
+%dir %{_prefix}/System/Libraries/%{gscpu}/%{gsos}/%{libcombo}
+%attr(755,root,root) %{_prefix}/System/Libraries/%{gscpu}/%{gsos}/%{libcombo}/lib*.so.*
+
+%dir %{_prefix}/System/Library/Bundles/SSL.bundle
+%{_prefix}/System/Library/Bundles/SSL.bundle/Resources
+%dir %{_prefix}/System/Library/Bundles/SSL.bundle/%{gscpu}
+%dir %{_prefix}/System/Library/Bundles/SSL.bundle/%{gscpu}/%{gsos}
+%dir %{_prefix}/System/Library/Bundles/SSL.bundle/%{gscpu}/%{gsos}/%{libcombo}
+%attr(755,root,root) %{_prefix}/System/Library/Bundles/SSL.bundle/%{gscpu}/%{gsos}/%{libcombo}/SSL
+
+%dir %{_prefix}/System/Tools/%{gscpu}
+%dir %{_prefix}/System/Tools/%{gscpu}/%{gsos}
+# is suid necessary here??? it runs as daemon...
+#%attr(4755,root,root) %{_prefix}/System/Tools/%{gscpu}/%{gsos}/gdomap
+%attr(755,root,root) %{_prefix}/System/Tools/%{gscpu}/%{gsos}/gdomap
+%dir %{_prefix}/System/Tools/%{gscpu}/%{gsos}/%{libcombo}
+%attr(755,root,root) %{_prefix}/System/Tools/%{gscpu}/%{gsos}/%{libcombo}/*
+
+%files devel
 %defattr(644,root,root,755)
+%{_prefix}/System/Headers/Foundation
+%{_prefix}/System/Headers/gnustep
+%{_prefix}/System/Headers/%{gscpu}
+%{_prefix}/System/Libraries/%{gscpu}/%{gsos}/%{libcombo}/lib*.so
+%dir %{_prefix}/System/Makefiles/Additional
+%{_prefix}/System/Makefiles/Additional/*.make

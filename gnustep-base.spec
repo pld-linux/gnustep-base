@@ -6,7 +6,7 @@ Summary:	GNUstep Base library package
 Summary(pl):	Podstawowa biblioteka GNUstep
 Name:		gnustep-base
 Version:	1.9.1
-Release:	0.1
+Release:	1
 License:	LGPL/GPL
 Group:		Libraries
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
@@ -18,9 +18,9 @@ URL:		http://www.gnustep.org/
 BuildRequires:	ffcall-devel
 BuildRequires:	gcc-objc
 BuildRequires:	gmp-devel
-%{?with_doc:BuildRequires:	gnustep-base-devel >= 1.7.1}
+%{?with_doc:BuildRequires:	gnustep-base-devel >= 1.8.0}
 %{?with_doc:BuildRequires:	docbook-dtd41-sgml}
-BuildRequires:	gnustep-make-devel >= 1.7.1
+BuildRequires:	gnustep-make-devel >= 1.8.0
 BuildRequires:	libxml2-devel >= 2.3.0
 BuildRequires:	openssl-devel >= 0.9.7c
 BuildRequires:	zlib-devel

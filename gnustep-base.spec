@@ -5,12 +5,12 @@
 Summary:	GNUstep Base library package
 Summary(pl):	Podstawowa biblioteka GNUstep
 Name:		gnustep-base
-Version:	1.7.1
-Release:	1
+Version:	1.7.2
+Release:	2
 License:	LGPL/GPL
 Group:		Libraries
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
-# Source0-md5:	84e102171fd9852e76473c6c661a93f6
+# Source0-md5:	bc1b74be8544ffe5fe4bf57a8df382c2
 Source1:	%{name}.init
 Patch0:		%{name}-link.patch
 URL:		http://www.gnustep.org/
@@ -114,7 +114,7 @@ find $RPM_BUILD_ROOT%{_prefix}/System/Library/Documentation \
 %endif
 
 install -d $RPM_BUILD_ROOT%{_initrddir}
-sed -e "s@TOOLSARCHDIR@%{_prefix}/System/Tools/%{gscpu}/%{gsos}@" %{SOURCE1} \
+sed -e "s!@TOOLSARCHDIR@!%{_prefix}/System/Tools/%{gscpu}/%{gsos}!" %{SOURCE1} \
 	> $RPM_BUILD_ROOT%{_initrddir}/gnustep
 
 echo 'GMT' > $RPM_BUILD_ROOT%{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/localtime

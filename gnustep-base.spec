@@ -101,7 +101,7 @@ mv mygnustep.init ${RPM_BUILD_ROOT}/etc/rc.d/init.d/gnustep
 %endif
 
 cat > filelist.rpm.in << EOF
-%defattr (-, bin, bin)
+%defattr (-, root, root)
 %doc ANNOUNCE AUTHORS COPYING* ChangeLog* INSTALL* NEWS README Version
 %config %{_prefix}/GNUstep/Libraries/Resources/NSTimeZones/localtime
 %ifos Linux
@@ -142,7 +142,7 @@ cat > filelist.rpm.in << EOF
 EOF
 
 cat > filelist-devel.rpm.in  << EOF
-%defattr(-, bin, bin)
+%defattr(-, root, root)
 %dir %{_prefix}/GNUstep/Headers
 %dir %{_prefix}/GNUstep/Headers/gnustep
 

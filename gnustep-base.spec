@@ -12,7 +12,8 @@ Group:		Libraries
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
 # Source0-md5:	ae5a29e32a392c78ea2e93a639487817
 Source1:	%{name}.init
-#Patch0:		%{name}-link.patch
+Patch0:		%{name}-link.patch
+Patch1:		%{name}-ssl.patch
 URL:		http://www.gnustep.org/
 BuildRequires:	ffcall-devel
 BuildRequires:	gcc-objc
@@ -81,7 +82,8 @@ podstawowej biblioteki GNUstep.
 
 %prep
 %setup -q
-#%patch -p1
+%patch0 -p1
+%patch1 -p1
 
 %build
 . %{_prefix}/System/Library/Makefiles/GNUstep.sh
@@ -165,6 +167,10 @@ mv -f /etc/ld.so.conf.tmp /etc/ld.so.conf
 %doc ChangeLog*
 %attr(754,root,root) %{_initrddir}/gnustep
 
+%dir %{_prefix}/System/Library/Bundles/SSL.bundle
+%{_prefix}/System/Library/Bundles/SSL.bundle/Resources
+%attr(755,root,root) %{_prefix}/System/Library/Bundles/SSL.bundle/%{gscpu}
+
 %{_prefix}/System/Library/DocTemplates/*.gsdoc
 
 %docdir %{_prefix}/System/Library/Documentation
@@ -224,6 +230,7 @@ mv -f /etc/ld.so.conf.tmp /etc/ld.so.conf
 %defattr(644,root,root,755)
 %if %{with doc}
 %docdir %{_prefix}/System/Library/Documentation
+%{_prefix}/System/Library/Documentation/Developer/Base/General
 %{_prefix}/System/Library/Documentation/Developer/Base/ProgrammingManual
 %{_prefix}/System/Library/Documentation/Developer/Base/Reference
 %{_prefix}/System/Library/Documentation/Developer/BaseAdditions

@@ -1,10 +1,14 @@
+#
+# Conditional build:
+# _without_doc	- don't generate documentation (bootstrap build w/o gnustep-base)
+#
 Summary:	GNUstep Base library package
 Summary(pl):	Podstawowa biblioteka GNUstep
 Name:		gnustep-base
 Version:	1.5.1
-Release:	0.1
-License:	GPL
-Vendor:		The Seawood Project
+Release:	1
+License:	LGPL/GPL
+Vendor:		The GNUstep Project
 Group:		Development/Tools
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
 Patch0:		%{name}-link.patch
@@ -12,6 +16,7 @@ URL:		http://www.gnustep.org/
 BuildRequires:	ffcall-devel
 BuildRequires:	gcc-objc
 BuildRequires:	gmp-devel
+%{!?_without_doc:BuildRequires:	gnustep-base-devel}
 BuildRequires:	gnustep-make-devel >= 1.5.1
 BuildRequires:	libxml2 >= 2.3.0
 BuildRequires:	openssl-devel
@@ -54,7 +59,12 @@ Summary:	GNUstep Base headers
 Summary(pl):	Pliki nag³ówkowe podstawowej biblioteki GNUstep
 Group:		Development/Libraries
 Requires:	%{name} = %{version}
+Requires:	ffcall-devel
+Requires:	gcc-objc
+Requires:	gmp-devel
 Requires:	gnustep-make-devel
+Requires:	libxml2-devel
+Requires:	zlib-devel
 Conflicts:	gnustep-core
 
 %description devel
@@ -73,10 +83,14 @@ podstawowej biblioteki GNUstep.
 . %{_prefix}/System/Makefiles/GNUstep.sh
 %configure
 
-%{__make}
+%{__make} \
+	messages=yes
 
+%if %{?_without_doc:0}%{!?_without_doc:1}
 # requires already installed gnustep-base
-#%{__make} -C Documentation
+%{__make} -C Documentation
+%{__make} -C Documentation/manual
+%endif
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -85,8 +99,15 @@ rm -rf $RPM_BUILD_ROOT
 	INSTALL_ROOT_DIR=$RPM_BUILD_ROOT \
 	GNUSTEP_INSTALLATION_DIR=$RPM_BUILD_ROOT%{_prefix}/System
 
-#%{__make} -C Documentation install \
-#	GNUSTEP_INSTALLATION_DIR=$RPM_BUILD_ROOT%{_prefix}/System
+%if %{?_without_doc:0}%{!?_without_doc:1}
+%{__make} -C Documentation install \
+	GNUSTEP_INSTALLATION_DIR=$RPM_BUILD_ROOT%{_prefix}/System
+%{__make} -C Documentation/manual install \
+	GNUSTEP_INSTALLATION_DIR=$RPM_BUILD_ROOT%{_prefix}/System
+# not (yet?) supported by rpm-compress-doc
+find $RPM_BUILD_ROOT%{_prefix}/System/Documentation \
+	-type f -a ! -name '*.html' | xargs gzip -9nf
+%endif
 
 install -d $RPM_BUILD_ROOT/etc/rc.d/init.d
 cat > $RPM_BUILD_ROOT/etc/rc.d/init.d/gnustep << EOF
@@ -141,9 +162,6 @@ EOF
 
 echo 'GMT' > $RPM_BUILD_ROOT%{_prefix}/System/Libraries/Resources/NSTimeZones/localtime
 
-# not (yet?) supported by rpm-compress-doc
-find $RPM_BUILD_ROOT%{_prefix}/System/Documentation/Developer -type f | xargs gzip -9nf
-
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -183,8 +201,15 @@ fi
 
 %files
 %defattr(644,root,root,755)
-%doc ChangeLog* NEWS README
+%doc ChangeLog*
 %attr(754,root,root) /etc/rc.d/init.d/gnustep
+
+%if %{?_without_doc:0}%{!?_without_doc:1}
+%docdir %{_prefix}/System/Documentation
+%{_prefix}/System/Documentation/Developer/Base
+%{_prefix}/System/Documentation/Developer/CodingStandards
+%{_prefix}/System/Documentation/info/*.info*
+%endif
 
 %{_prefix}/System/Libraries/Resources/DocTemplates
 %{_prefix}/System/Libraries/Resources/DTDs
@@ -220,10 +245,7 @@ fi
 
 %dir %{_prefix}/System/Library/Bundles/SSL.bundle
 %{_prefix}/System/Library/Bundles/SSL.bundle/Resources
-%dir %{_prefix}/System/Library/Bundles/SSL.bundle/%{gscpu}
-%dir %{_prefix}/System/Library/Bundles/SSL.bundle/%{gscpu}/%{gsos}
-%dir %{_prefix}/System/Library/Bundles/SSL.bundle/%{gscpu}/%{gsos}/%{libcombo}
-%attr(755,root,root) %{_prefix}/System/Library/Bundles/SSL.bundle/%{gscpu}/%{gsos}/%{libcombo}/SSL
+%attr(755,root,root) %{_prefix}/System/Library/Bundles/SSL.bundle/%{gscpu}
 
 %dir %{_prefix}/System/Tools/%{gscpu}
 %dir %{_prefix}/System/Tools/%{gscpu}/%{gsos}
@@ -240,4 +262,4 @@ fi
 %{_prefix}/System/Headers/%{gscpu}
 %{_prefix}/System/Libraries/%{gscpu}/%{gsos}/%{libcombo}/lib*.so
 %dir %{_prefix}/System/Makefiles/Additional
-%{_prefix}/System/Makefiles/Additional/*.make
+%{_prefix}/System/Makefiles/Additional/base.make

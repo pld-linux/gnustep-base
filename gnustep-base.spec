@@ -10,6 +10,7 @@ Release:	1
 License:	LGPL/GPL
 Group:		Libraries
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
+# Source0-md5:	41d2b9d9ef7c86dfe5f4dba8fa501278
 Patch0:		%{name}-link.patch
 URL:		http://www.gnustep.org/
 BuildRequires:	ffcall-devel

@@ -7,7 +7,9 @@ License:	GPL
 Vendor:		The Seawood Project
 Group:		Development/Tools
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
+Patch0:		%{name}-link.patch
 URL:		http://www.gnustep.org/
+BuildRequires:	ffcall-devel
 BuildRequires:	gcc-objc
 BuildRequires:	gmp-devel
 BuildRequires:	gnustep-make-devel >= 1.5.1
@@ -65,12 +67,12 @@ podstawowej biblioteki GNUstep.
 
 %prep
 %setup -q
+%patch -p1
 
 %build
 . %{_prefix}/System/Makefiles/GNUstep.sh
 %configure
 
-# TODO: fix libgnustep-base linking (-lobjc -ldl -lm -lz -lxml2)
 %{__make}
 
 # requires already installed gnustep-base

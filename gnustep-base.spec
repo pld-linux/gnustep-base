@@ -189,7 +189,7 @@ mv -f /etc/ld.so.conf.tmp /etc/ld.so.conf
 %lang(fr) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/French.lproj
 %lang(de) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/German.lproj
 %lang(it) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Italian.lproj
-%lang(tw) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/TraditionalChinese.lproj
+%lang(zh_TW) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/TraditionalChinese.lproj
 %dir %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages
 %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Locale.*
 %lang(nl) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Dutch
@@ -197,7 +197,7 @@ mv -f /etc/ld.so.conf.tmp /etc/ld.so.conf
 %lang(fr) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/French
 %lang(de) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/German
 %lang(it) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Italian
-%lang(tw) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/TraditionalChinese
+%lang(zh_TW) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/TraditionalChinese
 %lang(ru) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Russian
 %lang(sk) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Slovak
 %lang(uk) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/UkraineRussian

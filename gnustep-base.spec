@@ -1,7 +1,7 @@
 Summary:	GNUstep Base library package
 Summary(pl):	Podstawowa biblioteka GNUstep
 Name:		gnustep-base
-Version:	0.6.0
+Version:	1.0.2
 Release:	1
 License:	GPL
 Vendor:		The Seawood Project

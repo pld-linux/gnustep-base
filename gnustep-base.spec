@@ -6,7 +6,7 @@ Summary:	GNUstep Base library package
 Summary(pl):	Podstawowa biblioteka GNUstep
 Name:		gnustep-base
 Version:	1.9.1
-Release:	1
+Release:	0.1
 License:	LGPL/GPL
 Group:		Libraries
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
@@ -27,21 +27,25 @@ BuildRequires:	zlib-devel
 Requires(post,preun):	grep
 Requires(post,preun):	/sbin/chkconfig
 Requires(post,postun):	/sbin/ldconfig
-Requires:	gnustep-make >= 1.7.3
+Requires:	gnustep-make >= 1.8.0
 # with gdomap in /etc/services
 Requires:	setup >= 2.4.3
 Conflicts:	gnustep-core
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define         _prefix         /usr/lib/GNUstep
+%define         _prefix         /usr/%{_lib}/GNUstep
 
 %define		libcombo	gnu-gnu-gnu
 %define		gsos		linux-gnu
 %ifarch %{ix86}
 %define		gscpu		ix86
 %else
+%ifarch amd64
+%define		gscpu		x86_64
+%else
 # also s/alpha.*/alpha/, but we use only "alpha" arch for now
 %define		gscpu		%{_target_cpu}
+%endif
 %endif
 
 %description
@@ -63,11 +67,11 @@ losowych.
 Summary:	GNUstep Base headers
 Summary(pl):	Pliki nag³ówkowe podstawowej biblioteki GNUstep
 Group:		Development/Libraries
-Requires:	%{name} = %{version}
+Requires:	%{name} = %{version}-%{release}
 Requires:	ffcall-devel
 Requires:	gcc-objc
 Requires:	gmp-devel
-Requires:	gnustep-make-devel >= 1.7.1
+Requires:	gnustep-make-devel >= 1.8.0
 Requires:	libxml2-devel
 Requires:	zlib-devel
 Conflicts:	gnustep-core

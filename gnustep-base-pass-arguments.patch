@@ -1,11 +1,11 @@
---- gnustep-base-1.9.2/Source/NSProcessInfo.m.orig	2004-01-11 05:49:10.000000000 +0100
-+++ gnustep-base-1.9.2/Source/NSProcessInfo.m	2004-06-27 19:24:46.936405669 +0200
+--- gnustep-base-1.10.1/Source/NSProcessInfo.m.orig	2004-01-11 05:49:10.000000000 +0100
++++ gnustep-base-1.10.1/Source/NSProcessInfo.m	2004-06-27 19:24:46.936405669 +0200
 @@ -315,7 +315,7 @@
    IF_NO_GC(RELEASE(arp));
  }
  
--#if !GS_FAKE_MAIN && ((defined(HAVE_PROCFS)  || defined(HAVE_LIBKVM)) && (defined(HAVE_LOAD_METHOD)))
-+#if !GS_FAKE_MAIN && !GS_PASS_ARGUMENTS && ((defined(HAVE_PROCFS)  || defined(HAVE_LIBKVM)) && (defined(HAVE_LOAD_METHOD)))
+-#if !GS_FAKE_MAIN && ((defined(HAVE_PROCFS)  || defined(HAVE_KVM_ENV)) && (defined(HAVE_LOAD_METHOD)))
++#if !GS_FAKE_MAIN && !GS_PASS_ARGUMENTS && ((defined(HAVE_PROCFS)  || defined(HAVE_KVM_ENV)) && (defined(HAVE_LOAD_METHOD)))
  /*
   * We have to save program arguments and environment before main () is
   * executed, because main () could modify their values before we get a

@@ -51,7 +51,7 @@ podstawowej biblioteki GNUstep.
 
 %build
 if [ -z "$GNUSTEP_SYSTEM_ROOT" ]; then
-   . %{_prefix}/GNUstep/System/Makefiles/GNUstep.sh 
+   . %{_prefix}/GNUstep/System/Makefiles/GNUstep.sh
 fi
 CFLAGS="%{rpmcflags}" ./configure --prefix=%{_prefix}/GNUstep
 # --with-library-combo=%{libcombo}
@@ -60,7 +60,7 @@ CFLAGS="%{rpmcflags}" ./configure --prefix=%{_prefix}/GNUstep
 %install
 rm -rf $RPM_BUILD_ROOT
 if [ -z "$GNUSTEP_SYSTEM_ROOT" ]; then
-   . %{_prefix}/GNUstep/System/Makefiles/GNUstep.sh 
+   . %{_prefix}/GNUstep/System/Makefiles/GNUstep.sh
 fi
 %{__make} install GNUSTEP_INSTALLATION_DIR=${RPM_BUILD_ROOT}%{_prefix}/GNUstep
 
@@ -92,7 +92,7 @@ case "\$1" in
         ;;
 
    status)
-        status gdomap   
+        status gdomap
         ;;
 
    restart|reload)
@@ -103,7 +103,7 @@ case "\$1" in
     *)
         echo "Usage: gnustep {start|stop|status|restart|reload}"
         exit 1
-esac 
+esac
 EOF
 
 sed -e "s|GSARCH|${GNUSTEP_HOST_CPU}|g" -e "s|GSOS|${GNUSTEP_HOST_OS}|g" < mygnustep.init.in > mygnustep.init
@@ -130,12 +130,12 @@ cat > filelist.rpm.in << EOF
 %dir %{_prefix}/GNUstep/Tools/GSARCH/GSOS
 %dir %{_prefix}/GNUstep/Tools/GSARCH/GSOS/%{libcombo}
 
-%{_prefix}/GNUstep/Libraries/Resources/NSCharacterSets 
-%{_prefix}/GNUstep/Libraries/Resources/NSTimeZones/README 
-%{_prefix}/GNUstep/Libraries/Resources/NSTimeZones/abbreviations 
-%{_prefix}/GNUstep/Libraries/Resources/NSTimeZones/regions 
-%{_prefix}/GNUstep/Libraries/Resources/NSTimeZones/zones 
-%{_prefix}/GNUstep/Libraries/Resources/NSTimeZones/*.m 
+%{_prefix}/GNUstep/Libraries/Resources/NSCharacterSets
+%{_prefix}/GNUstep/Libraries/Resources/NSTimeZones/README
+%{_prefix}/GNUstep/Libraries/Resources/NSTimeZones/abbreviations
+%{_prefix}/GNUstep/Libraries/Resources/NSTimeZones/regions
+%{_prefix}/GNUstep/Libraries/Resources/NSTimeZones/zones
+%{_prefix}/GNUstep/Libraries/Resources/NSTimeZones/*.m
 %{_prefix}/GNUstep/Libraries/GSARCH/GSOS/%{libcombo}/lib*.so.*
 
 %{_prefix}/GNUstep/Tools/dread
@@ -175,7 +175,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %post
 if [ -z "$GNUSTEP_SYSTEM_ROOT" ]; then
-   . %{_prefix}/GNUstep/Makefiles/GNUstep.sh 
+   . %{_prefix}/GNUstep/Makefiles/GNUstep.sh
 fi
 grep -q '^gdomap' /etc/services || (echo "gdomap 538/tcp # GNUstep distrib objects" >> /etc/services && echo "gdomap 538/udp # GNUstep distrib objects" >> /etc/services)
 %ifos Linux
@@ -186,7 +186,7 @@ grep -q '%{_prefix}/GNUstep/Libraries/$GNUSTEP_HOST_CPU/$GNUSTEP_HOST_OS/gnu-gnu
 
 %preun
 if [ -z "$GNUSTEP_SYSTEM_ROOT" ]; then
-   . %{_prefix}/GNUstep/Makefiles/GNUstep.sh 
+   . %{_prefix}/GNUstep/Makefiles/GNUstep.sh
 fi
 if [ $1 = 0 ]; then
     /sbin/chkconfig --del gnustep
@@ -197,7 +197,7 @@ fi
 
 %postun
 if [ -z "$GNUSTEP_SYSTEM_ROOT" ]; then
-   . %{_prefix}/GNUstep/Makefiles/GNUstep.sh 
+   . %{_prefix}/GNUstep/Makefiles/GNUstep.sh
 fi
 if [ $1 = 0 ]; then
 %ifos Linux

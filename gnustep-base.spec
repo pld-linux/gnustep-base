@@ -223,9 +223,6 @@ mv -f /etc/ld.so.conf.tmp /etc/ld.so.conf
 %{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/*.m
 %config(noreplace) %verify(not size mtime md5) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/localtime
 
-%dir %{_prefix}/System/Library/Libraries/%{gscpu}
-%dir %{_prefix}/System/Library/Libraries/%{gscpu}/%{gsos}
-%dir %{_prefix}/System/Library/Libraries/%{gscpu}/%{gsos}/%{libcombo}
 %attr(755,root,root) %{_prefix}/System/Library/Libraries/%{gscpu}/%{gsos}/%{libcombo}/lib*.so.*
 
 %dir %{_prefix}/System/Tools/%{gscpu}

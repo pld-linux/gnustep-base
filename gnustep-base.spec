@@ -22,7 +22,7 @@ BuildRequires:	gmp-devel
 %{?with_doc:BuildRequires:	docbook-dtd41-sgml}
 BuildRequires:	gnustep-make-devel >= 1.8.0
 BuildRequires:	libxml2-devel >= 2.3.0
-BuildRequires:	openssl-devel >= 0.9.7c
+BuildRequires:	openssl-devel >= 0.9.7d
 BuildRequires:	zlib-devel
 Requires(post,preun):	grep
 Requires(post,preun):	/sbin/chkconfig

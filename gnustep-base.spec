@@ -5,6 +5,7 @@ Release:	1
 License:	GPL
 Vendor:		The Seawood Project
 Group:		Development/Tools
+Group(de):	Entwicklung/Werkzeuge
 Group(fr):	Development/Outils
 Group(pl):	Programowanie/Narzêdzia
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
@@ -26,6 +27,7 @@ event loops, and random number generators. Library combo is
 %package devel
 Summary:	GNUstep Base headers and development libs.
 Group:		Development/Libraries
+Group(de):	Entwicklung/Libraries
 Group(fr):	Development/Librairies
 Group(pl):	Programowanie/Biblioteki
 Requires:	%{name} = %{version}, gnustep-make-devel
@@ -43,7 +45,7 @@ library. Library combo is %{libcombo}. %{_buildblurb}
 if [ -z "$GNUSTEP_SYSTEM_ROOT" ]; then
    . %{_prefix}/GNUstep/Makefiles/GNUstep.sh 
 fi
-CFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=%{_prefix}/GNUstep --with-library-combo=%{libcombo}
+CFLAGS="%{rpmcflags}" ./configure --prefix=%{_prefix}/GNUstep --with-library-combo=%{libcombo}
 %{__make}
 
 %install
@@ -97,7 +99,7 @@ EOF
 
 sed -e "s|GSARCH|${GNUSTEP_HOST_CPU}|g" -e "s|GSOS|${GNUSTEP_HOST_OS}|g" < mygnustep.init.in > mygnustep.init
 install -d ${RPM_BUILD_ROOT}/etc/rc.d/init.d
-mv mygnustep.init ${RPM_BUILD_ROOT}/etc/rc.d/init.d/gnustep
+mv -f mygnustep.init ${RPM_BUILD_ROOT}/etc/rc.d/init.d/gnustep
 %endif
 
 cat > filelist.rpm.in << EOF
@@ -119,12 +121,12 @@ cat > filelist.rpm.in << EOF
 %dir %{_prefix}/GNUstep/Tools/GSARCH/GSOS
 %dir %{_prefix}/GNUstep/Tools/GSARCH/GSOS/%{libcombo}
 
-%{_prefix}/GNUstep/Libraries/Resources/NSCharacterSets
-%{_prefix}/GNUstep/Libraries/Resources/NSTimeZones/README
-%{_prefix}/GNUstep/Libraries/Resources/NSTimeZones/abbreviations
-%{_prefix}/GNUstep/Libraries/Resources/NSTimeZones/regions
-%{_prefix}/GNUstep/Libraries/Resources/NSTimeZones/zones
-%{_prefix}/GNUstep/Libraries/Resources/NSTimeZones/*.m
+%{_prefix}/GNUstep/Libraries/Resources/NSCharacterSets 
+%{_prefix}/GNUstep/Libraries/Resources/NSTimeZones/README 
+%{_prefix}/GNUstep/Libraries/Resources/NSTimeZones/abbreviations 
+%{_prefix}/GNUstep/Libraries/Resources/NSTimeZones/regions 
+%{_prefix}/GNUstep/Libraries/Resources/NSTimeZones/zones 
+%{_prefix}/GNUstep/Libraries/Resources/NSTimeZones/*.m 
 %{_prefix}/GNUstep/Libraries/GSARCH/GSOS/%{libcombo}/lib*.so.*
 
 %{_prefix}/GNUstep/Tools/dread

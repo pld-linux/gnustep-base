@@ -1,6 +1,6 @@
 #
 # Conditional build:
-# _without_doc	- don't generate documentation (bootstrap build w/o gnustep-base)
+%bcond_without	doc	# don't generate documentation (bootstrap build w/o gnustep-base)
 #
 Summary:	GNUstep Base library package
 Summary(pl):	Podstawowa biblioteka GNUstep
@@ -17,8 +17,8 @@ URL:		http://www.gnustep.org/
 BuildRequires:	ffcall-devel
 BuildRequires:	gcc-objc
 BuildRequires:	gmp-devel
-%{!?_without_doc:BuildRequires:	gnustep-base-devel >= 1.7.1}
-%{!?_without_doc:BuildRequires:	docbook-dtd41-sgml}
+%{?with_doc:BuildRequires:	gnustep-base-devel >= 1.7.1}
+%{?with_doc:BuildRequires:	docbook-dtd41-sgml}
 BuildRequires:	gnustep-make-devel >= 1.7.1
 BuildRequires:	libxml2-devel >= 2.3.0
 BuildRequires:	openssl-devel >= 0.9.7c
@@ -90,7 +90,7 @@ podstawowej biblioteki GNUstep.
 %{__make} \
 	messages=yes
 
-%if %{?_without_doc:0}%{!?_without_doc:1}
+%if %{with doc}
 # requires already installed gnustep-base
 %{__make} -C Documentation
 %{__make} -C Documentation/manual
@@ -103,7 +103,7 @@ rm -rf $RPM_BUILD_ROOT
 	INSTALL_ROOT_DIR=$RPM_BUILD_ROOT \
 	GNUSTEP_INSTALLATION_DIR=$RPM_BUILD_ROOT%{_prefix}/System
 
-%if %{?_without_doc:0}%{!?_without_doc:1}
+%if %{with doc}
 %{__make} -C Documentation install \
 	GNUSTEP_INSTALLATION_DIR=$RPM_BUILD_ROOT%{_prefix}/System
 %{__make} -C Documentation/manual install \
@@ -172,7 +172,7 @@ mv -f /etc/ld.so.conf.tmp /etc/ld.so.conf
 %{_prefix}/System/Library/DocTemplates/*.gsdoc
 
 %docdir %{_prefix}/System/Library/Documentation
-%if 0%{!?_without_doc:1}
+%if %{with doc}
 %dir %{_prefix}/System/Library/Documentation/Developer/Base
 %{_prefix}/System/Library/Documentation/Developer/Base/ReleaseNotes
 %endif
@@ -226,7 +226,7 @@ mv -f /etc/ld.so.conf.tmp /etc/ld.so.conf
 
 %files devel
 %defattr(644,root,root,755)
-%if 0%{!?_without_doc:1}
+%if %{with doc}
 %docdir %{_prefix}/System/Library/Documentation
 %{_prefix}/System/Library/Documentation/Developer/Base/ProgrammingManual
 %{_prefix}/System/Library/Documentation/Developer/Base/Reference

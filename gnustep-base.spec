@@ -169,15 +169,15 @@ grep -q '^gdomap' /etc/services || (echo "gdomap 538/tcp # GNUstep distrib objec
 %ifos Linux
 grep -q '%{_prefix}/GNUstep/Libraries/$GNUSTEP_HOST_CPU/$GNUSTEP_HOST_OS/gnu-gnu-gnu-xgps' /etc/ld.so.conf || echo "%{_prefix}/GNUstep/Libraries/$GNUSTEP_HOST_CPU/$GNUSTEP_HOST_OS/%{libcombo}" >> /etc/ld.so.conf
 /sbin/ldconfig
-NAME=gnustep; %chkconfig_add
+/sbin/chkconfig --add gnustep
 %endif
 
 %preun
 if [ -z "$GNUSTEP_SYSTEM_ROOT" ]; then
    . %{_prefix}/GNUstep/Makefiles/GNUstep.sh 
 fi
-NAME=gnustep; %chkconfig_del
 if [ $1 = 0 ]; then
+    /sbin/chkconfig --del gnustep
     mv -f /etc/services /etc/services.orig
     grep -v "^gdomap 538" /etc/services.orig > /etc/services
     rm -f /etc/services.orig

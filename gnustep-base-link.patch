@@ -1,12 +1,11 @@
---- gnustep-base-1.5.1/Source/Makefile.preamble.orig	Sat Nov  9 17:40:00 2002
-+++ gnustep-base-1.5.1/Source/Makefile.preamble	Sun Dec 29 00:51:06 2002
-@@ -77,6 +77,9 @@
- ifeq ($(GNUSTEP_TARGET_OS),cygwin)
+--- gnustep-base-1.6.0/Source/Makefile.preamble.orig	2003-03-15 05:47:55.000000000 +0100
++++ gnustep-base-1.6.0/Source/Makefile.preamble	2003-05-14 21:03:55.000000000 +0200
+@@ -78,7 +78,7 @@
  libgnustep-base_LIBRARIES_DEPEND_UPON += -lobjc
  endif
-+ifeq ($(GNUSTEP_TARGET_OS),linux-gnu)
-+libgnustep-base_LIBRARIES_DEPEND_UPON += -lobjc -ldl $(CONFIG_SYSTEM_LIBS)
-+endif
- ifeq ($(findstring darwin, $(GNUSTEP_TARGET_OS)), darwin)
- libgnustep-base_LIBRARIES_DEPEND_UPON += $(CONFIG_SYSTEM_LIBS) \
- 	-flat_namespace
+ ifeq ($(shared),yes)
+-libgnustep-base_LIBRARIES_DEPEND_UPON += $(CONFIG_SYSTEM_LIBS) 
++libgnustep-base_LIBRARIES_DEPEND_UPON += -lobjc -ldl $(CONFIG_SYSTEM_LIBS) 
+ endif
+ 
+ #

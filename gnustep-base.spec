@@ -6,13 +6,14 @@ Summary:	GNUstep Base library package
 Summary(pl):	Podstawowa biblioteka GNUstep
 Name:		gnustep-base
 Version:	1.9.2
-Release:	1
+Release:	2
 License:	LGPL/GPL
 Group:		Libraries
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
 # Source0-md5:	b1fe102145f32aa05ebff41ffd7b9fd0
 Source1:	%{name}.init
 Patch0:		%{name}-link.patch
+Patch1:		%{name}-pass-arguments.patch
 URL:		http://www.gnustep.org/
 BuildRequires:	ffcall-devel
 BuildRequires:	gcc-objc
@@ -82,6 +83,7 @@ podstawowej biblioteki GNUstep.
 %prep
 %setup -q
 %patch0 -p1
+%patch1 -p1
 
 %build
 . %{_prefix}/System/Library/Makefiles/GNUstep.sh

@@ -10,8 +10,9 @@ Group(de):	Entwicklung/Werkzeuge
 Group(fr):	Development/Outils
 Group(pl):	Programowanie/Narzêdzia
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
-Patch0:		gstep-base-unicode.patch
 URL:		http://www.gnustep.org/
+BuildRequires:	gnustep-make gnustep-make-devel
+BuildRequires:	libxml2 >= 2.2.3
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 Conflicts:	gnustep-core
 Requires:	gnustep-make
@@ -52,20 +53,20 @@ Pliki nag³ówkowe potrzebne do budowania aplikacji u¿ywaj±cych
 podstawowej biblioteki GNUstep.
 
 %prep
-%setup -q -n gstep-%{ver}/base
-%patch -p2
+%setup -q
 
 %build
 if [ -z "$GNUSTEP_SYSTEM_ROOT" ]; then
-   . %{_prefix}/GNUstep/Makefiles/GNUstep.sh 
+   . %{_prefix}/GNUstep/System/Makefiles/GNUstep.sh 
 fi
-CFLAGS="%{rpmcflags}" ./configure --prefix=%{_prefix}/GNUstep --with-library-combo=%{libcombo}
+CFLAGS="%{rpmcflags}" ./configure --prefix=%{_prefix}/GNUstep
+# --with-library-combo=%{libcombo}
 %{__make}
 
 %install
 rm -rf $RPM_BUILD_ROOT
 if [ -z "$GNUSTEP_SYSTEM_ROOT" ]; then
-   . %{_prefix}/GNUstep/Makefiles/GNUstep.sh 
+   . %{_prefix}/GNUstep/System/Makefiles/GNUstep.sh 
 fi
 %{__make} install GNUSTEP_INSTALLATION_DIR=${RPM_BUILD_ROOT}%{_prefix}/GNUstep
 

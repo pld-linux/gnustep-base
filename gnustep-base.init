@@ -1,0 +1,48 @@
+#!/bin/sh
+#
+# gnustep daemons
+#
+# chkconfig: 2345 35 65
+# description: Starts gnustep daemons
+#
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+case "$1" in
+  start)
+	if [ ! -f /var/lock/subsys/gnustep ]; then
+		msg_starting "gnustep services"
+		daemon @TOOLSARCHDIR@/gdomap
+		RETVAL=$?
+		[ $RETVAL -eq 0 ] && touch /var/lock/subsys/gnustep
+	else
+		msg_already_running "gnustep services"
+		exit 1
+	fi
+	;;
+  stop)
+	if [ -f /var/lock/subsys/gnustep ]; then
+		msg_stopping "gnustep services"
+		killproc gdomap
+		RETVAL=$?
+		rm -f /var/lock/subsys/gnustep
+	else
+		msg_not_running "gnustep services"
+		exit 1
+	fi
+	;;
+   status)
+	status gdomap
+	RETVAL=$?
+        ;;
+   restart|reload)
+	$0 stop
+	$0 start
+	;;
+    *)
+        msg_usage "$0 {start|stop|status|restart|reload}"
+        exit 1
+esac
+
+exit $RETVAL

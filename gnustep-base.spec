@@ -5,27 +5,30 @@
 Summary:	GNUstep Base library package
 Summary(pl):	Podstawowa biblioteka GNUstep
 Name:		gnustep-base
-Version:	1.6.0
+Version:	1.7.1
 Release:	1
 License:	LGPL/GPL
 Group:		Libraries
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
-# Source0-md5:	41d2b9d9ef7c86dfe5f4dba8fa501278
+# Source0-md5:	84e102171fd9852e76473c6c661a93f6
+Source1:	%{name}.init
 Patch0:		%{name}-link.patch
 URL:		http://www.gnustep.org/
 BuildRequires:	ffcall-devel
 BuildRequires:	gcc-objc
 BuildRequires:	gmp-devel
-%{!?_without_doc:BuildRequires:	gnustep-base-devel}
+%{!?_without_doc:BuildRequires:	gnustep-base-devel >= 1.7.1}
 %{!?_without_doc:BuildRequires: docbook-dtd41-sgml}
-BuildRequires:	gnustep-make-devel >= 1.5.1
-BuildRequires:	libxml2 >= 2.3.0
+BuildRequires:	gnustep-make-devel >= 1.7.1
+BuildRequires:	libxml2-devel >= 2.3.0
 BuildRequires:	openssl-devel >= 0.9.7
 BuildRequires:	zlib-devel
 Requires(post,preun):	grep
 Requires(post,preun):	/sbin/chkconfig
 Requires(post,postun):	/sbin/ldconfig
-Requires:	gnustep-make
+Requires:	gnustep-make >= 1.7.1
+# with gdomap in /etc/services
+Requires:	setup >= 2.4.3
 Conflicts:	gnustep-core
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -63,7 +66,7 @@ Requires:	%{name} = %{version}
 Requires:	ffcall-devel
 Requires:	gcc-objc
 Requires:	gmp-devel
-Requires:	gnustep-make-devel
+Requires:	gnustep-make-devel >= 1.7.1
 Requires:	libxml2-devel
 Requires:	zlib-devel
 Conflicts:	gnustep-core
@@ -81,7 +84,7 @@ podstawowej biblioteki GNUstep.
 %patch -p1
 
 %build
-. %{_prefix}/System/Makefiles/GNUstep.sh
+. %{_prefix}/System/Library/Makefiles/GNUstep.sh
 %configure
 
 %{__make} \
@@ -95,7 +98,7 @@ podstawowej biblioteki GNUstep.
 
 %install
 rm -rf $RPM_BUILD_ROOT
-. %{_prefix}/System/Makefiles/GNUstep.sh
+. %{_prefix}/System/Library/Makefiles/GNUstep.sh
 %{__make} install \
 	INSTALL_ROOT_DIR=$RPM_BUILD_ROOT \
 	GNUSTEP_INSTALLATION_DIR=$RPM_BUILD_ROOT%{_prefix}/System
@@ -106,75 +109,24 @@ rm -rf $RPM_BUILD_ROOT
 %{__make} -C Documentation/manual install \
 	GNUSTEP_INSTALLATION_DIR=$RPM_BUILD_ROOT%{_prefix}/System
 # not (yet?) supported by rpm-compress-doc
-find $RPM_BUILD_ROOT%{_prefix}/System/Documentation \
-	-type f -a ! -name '*.html' | xargs gzip -9nf
+find $RPM_BUILD_ROOT%{_prefix}/System/Library/Documentation \
+	-type f -a ! -name '*.html' -a ! -name '*.gz' | xargs gzip -9nf
 %endif
 
-install -d $RPM_BUILD_ROOT/etc/rc.d/init.d
-cat > $RPM_BUILD_ROOT/etc/rc.d/init.d/gnustep << EOF
-#!/bin/sh
-#
-# gnustep daemons
-#
-# chkconfig: 2345 35 65
-# description: Starts gnustep daemons
-#
-# Source function library.
-. /etc/rc.d/init.d/functions
+install -d $RPM_BUILD_ROOT%{_initrddir}
+sed -e "s@TOOLSARCHDIR@%{_prefix}/System/Tools/%{gscpu}/%{gsos}@" %{SOURCE1} \
+	> $RPM_BUILD_ROOT%{_initrddir}/gnustep
 
-case "\$1" in
-  start)
-	if [ ! -f /var/lock/subsys/gnustep ]; then
-		msg_starting "gnustep services"
-		daemon %{_prefix}/System/Tools/%{gscpu}/%{gsos}/gdomap
-		RETVAL=$?
-		[ $RETVAL -eq 0 ] && touch /var/lock/subsys/gnustep
-	else
-		msg_already_running "gnustep services"
-		exit 1
-	fi
-	;;
-  stop)
-	if [ -f /var/lock/subsys/gnustep ]; then
-		msg_stopping "gnustep services"
-		killproc gdomap
-		RETVAL=$?
-		rm -f /var/lock/subsys/gnustep
-	else
-		msg_not_running "gnustep services"
-		exit 1
-	fi
-	;;
-   status)
-	status gdomap
-	RETVAL=$?
-        ;;
-   restart|reload)
-	\$0 stop
-	\$0 start
-	;;
-    *)
-        msg_usage "$0 {start|stop|status|restart|reload}"
-        exit 1
-esac
-
-exit $RETVAL
-EOF
-
-echo 'GMT' > $RPM_BUILD_ROOT%{_prefix}/System/Libraries/Resources/NSTimeZones/localtime
+echo 'GMT' > $RPM_BUILD_ROOT%{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/localtime
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %post
 umask 022
-if ! grep -q '^gdomap' /etc/services ; then
-	echo "gdomap 538/tcp # GNUstep distrib objects" >> /etc/services
-	echo "gdomap 538/udp # GNUstep distrib objects" >> /etc/services
-fi
-if ! grep -q '%{_prefix}/Libraries/%{gscpu}/%{gsos}/%{libcombo}' \
+if ! grep -q '%{_prefix}/System/Library/Libraries/%{gscpu}/%{gsos}/%{libcombo}' \
     /etc/ld.so.conf ; then
-	echo "%{_prefix}/Libraries/%{gscpu}/%{gsos}/%{libcombo}" >> /etc/ld.so.conf
+	echo "%{_prefix}/System/Library/Libraries/%{gscpu}/%{gsos}/%{libcombo}" >> /etc/ld.so.conf
 fi
 /sbin/ldconfig
 /sbin/chkconfig --add gnustep
@@ -194,60 +146,72 @@ fi
 
 %postun
 if [ "$1" = "0" ]; then
-	grep -v "^%{_prefix}/Libraries/%{gscpu}/%{gsos}/%{libcombo}$" /etc/ld.so.conf \
+	umask 022
+	grep -v "^%{_prefix}/System/Library/Libraries/%{gscpu}/%{gsos}/%{libcombo}$" /etc/ld.so.conf \
 		> /etc/ld.so.conf.tmp
 	mv -f /etc/ld.so.conf.tmp /etc/ld.so.conf
 	/sbin/ldconfig
 fi
 
+%triggerpostun -- gnustep-base < 1.7.0
+umask 022
+grep -v "^%{_prefix}/Libraries/%{gscpu}/%{gsos}/%{libcombo}$" /etc/ld.so.conf \
+	> /etc/ld.so.conf.tmp
+mv -f /etc/ld.so.conf.tmp /etc/ld.so.conf
+/sbin/ldconfig
+
 %files
 %defattr(644,root,root,755)
 %doc ChangeLog*
-%attr(754,root,root) /etc/rc.d/init.d/gnustep
-
-%if %{?_without_doc:0}%{!?_without_doc:1}
-%docdir %{_prefix}/System/Documentation
-%{_prefix}/System/Documentation/Developer/Base
-%{_prefix}/System/Documentation/Developer/BaseAdditions
-%{_prefix}/System/Documentation/Developer/CodingStandards
-%{_prefix}/System/Documentation/info/*.info*
-%endif
-
-%{_prefix}/System/Libraries/Resources/DocTemplates
-%{_prefix}/System/Libraries/Resources/DTDs
-%{_prefix}/System/Libraries/Resources/NSCharacterSets
-%dir %{_prefix}/System/Libraries/Resources/NSTimeZones
-%{_prefix}/System/Libraries/Resources/NSTimeZones/GNUmakefile
-%{_prefix}/System/Libraries/Resources/NSTimeZones/GNUstep_zones
-%{_prefix}/System/Libraries/Resources/NSTimeZones/README
-%{_prefix}/System/Libraries/Resources/NSTimeZones/abbreviations
-%{_prefix}/System/Libraries/Resources/NSTimeZones/regions
-%{_prefix}/System/Libraries/Resources/NSTimeZones/zones
-%{_prefix}/System/Libraries/Resources/NSTimeZones/*.m
-%config(noreplace) %verify(not size mtime md5) %{_prefix}/System/Libraries/Resources/NSTimeZones/localtime
-%{_prefix}/System/Libraries/Resources/English.lproj
-%lang(fr) %{_prefix}/System/Libraries/Resources/French.lproj
-%lang(de) %{_prefix}/System/Libraries/Resources/German.lproj
-%lang(it) %{_prefix}/System/Libraries/Resources/Italian.lproj
-%dir %{_prefix}/System/Libraries/Resources/Languages
-%{_prefix}/System/Libraries/Resources/Languages/Locale.*
-%lang(nl) %{_prefix}/System/Libraries/Resources/Languages/Dutch
-%{_prefix}/System/Libraries/Resources/Languages/English
-%lang(fr) %{_prefix}/System/Libraries/Resources/Languages/French
-%lang(de) %{_prefix}/System/Libraries/Resources/Languages/German
-%lang(it) %{_prefix}/System/Libraries/Resources/Languages/Italian
-%lang(ru) %{_prefix}/System/Libraries/Resources/Languages/Russian
-%lang(sk) %{_prefix}/System/Libraries/Resources/Languages/Slovak
-%lang(uk) %{_prefix}/System/Libraries/Resources/Languages/UkraineRussian
-
-%dir %{_prefix}/System/Libraries/%{gscpu}
-%dir %{_prefix}/System/Libraries/%{gscpu}/%{gsos}
-%dir %{_prefix}/System/Libraries/%{gscpu}/%{gsos}/%{libcombo}
-%attr(755,root,root) %{_prefix}/System/Libraries/%{gscpu}/%{gsos}/%{libcombo}/lib*.so.*
+%attr(754,root,root) %{_initrddir}/gnustep
 
 %dir %{_prefix}/System/Library/Bundles/SSL.bundle
 %{_prefix}/System/Library/Bundles/SSL.bundle/Resources
 %attr(755,root,root) %{_prefix}/System/Library/Bundles/SSL.bundle/%{gscpu}
+
+%{_prefix}/System/Library/DocTemplates/*.gsdoc
+
+%docdir %{_prefix}/System/Library/Documentation
+%if 0%{!?_without_doc:1}
+%dir %{_prefix}/System/Library/Documentation/Developer/Base
+%{_prefix}/System/Library/Documentation/Developer/Base/ReleaseNotes
+%endif
+%dir %{_prefix}/System/Library/Documentation/man/man8
+%{_prefix}/System/Library/Documentation/man/man8/*.8*
+
+%dir %{_prefix}/System/Library/DTDs
+%{_prefix}/System/Library/DTDs/*.dtd
+
+%dir %{_prefix}/System/Library/Libraries/Resources/gnustep-base
+%{_prefix}/System/Library/Libraries/Resources/gnustep-base/English.lproj
+%lang(fr) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/French.lproj
+%lang(de) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/German.lproj
+%lang(it) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Italian.lproj
+%dir %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages
+%{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Locale.*
+%lang(nl) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Dutch
+%{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/English
+%lang(fr) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/French
+%lang(de) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/German
+%lang(it) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Italian
+%lang(ru) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Russian
+%lang(sk) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Slovak
+%lang(uk) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/UkraineRussian
+%{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSCharacterSets
+%dir %{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones
+%{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/GNUmakefile
+%{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/GNUstep_zones
+%{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/README
+%{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/abbreviations
+%{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/regions
+%{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/zones
+%{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/*.m
+%config(noreplace) %verify(not size mtime md5) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/localtime
+
+%dir %{_prefix}/System/Library/Libraries/%{gscpu}
+%dir %{_prefix}/System/Library/Libraries/%{gscpu}/%{gsos}
+%dir %{_prefix}/System/Library/Libraries/%{gscpu}/%{gsos}/%{libcombo}
+%attr(755,root,root) %{_prefix}/System/Library/Libraries/%{gscpu}/%{gsos}/%{libcombo}/lib*.so.*
 
 %dir %{_prefix}/System/Tools/%{gscpu}
 %dir %{_prefix}/System/Tools/%{gscpu}/%{gsos}
@@ -259,9 +223,19 @@ fi
 
 %files devel
 %defattr(644,root,root,755)
-%{_prefix}/System/Headers/Foundation
-%{_prefix}/System/Headers/gnustep
-%{_prefix}/System/Headers/%{gscpu}
-%{_prefix}/System/Libraries/%{gscpu}/%{gsos}/%{libcombo}/lib*.so
-%dir %{_prefix}/System/Makefiles/Additional
-%{_prefix}/System/Makefiles/Additional/base.make
+%if 0%{!?_without_doc:1}
+%docdir %{_prefix}/System/Library/Documentation
+%{_prefix}/System/Library/Documentation/Developer/Base/ProgrammingManual
+%{_prefix}/System/Library/Documentation/Developer/Base/Reference
+%{_prefix}/System/Library/Documentation/Developer/BaseAdditions
+%{_prefix}/System/Library/Documentation/Developer/CodingStandards
+%{_prefix}/System/Library/Documentation/info/*.info*
+%endif
+
+%{_prefix}/System/Library/Headers/Foundation
+%{_prefix}/System/Library/Headers/gnustep
+%{_prefix}/System/Library/Headers/%{gscpu}
+
+%{_prefix}/System/Library/Libraries/%{gscpu}/%{gsos}/%{libcombo}/lib*.so
+%dir %{_prefix}/System/Library/Makefiles/Additional
+%{_prefix}/System/Library/Makefiles/Additional/base.make

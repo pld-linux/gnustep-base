@@ -5,29 +5,29 @@
 Summary:	GNUstep Base library package
 Summary(pl):	Podstawowa biblioteka GNUstep
 Name:		gnustep-base
-Version:	1.9.2
-Release:	2
+Version:	1.10.0
+Release:	1
 License:	LGPL/GPL
 Group:		Libraries
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
-# Source0-md5:	b1fe102145f32aa05ebff41ffd7b9fd0
+# Source0-md5:	a948608044062a8ce6fae230144f5519
 Source1:	%{name}.init
 Patch0:		%{name}-link.patch
-Patch1:		%{name}-pass-arguments.patch
+#Patch1:		%{name}-pass-arguments.patch
 URL:		http://www.gnustep.org/
 BuildRequires:	ffcall-devel
 BuildRequires:	gcc-objc
 BuildRequires:	gmp-devel
 %{?with_doc:BuildRequires:	gnustep-base-devel >= 1.8.0}
 %{?with_doc:BuildRequires:	docbook-dtd41-sgml}
-BuildRequires:	gnustep-make-devel >= 1.8.0
+BuildRequires:	gnustep-make-devel >= 1.10.0
 BuildRequires:	libxml2-devel >= 2.3.0
 BuildRequires:	openssl-devel >= 0.9.7d
 BuildRequires:	zlib-devel
 Requires(post,preun):	grep
 Requires(post,preun):	/sbin/chkconfig
 Requires(post,postun):	/sbin/ldconfig
-Requires:	gnustep-make >= 1.8.0
+Requires:	gnustep-make >= 1.10.0
 # with gdomap in /etc/services
 Requires:	setup >= 2.4.3
 Conflicts:	gnustep-core
@@ -83,7 +83,7 @@ podstawowej biblioteki GNUstep.
 %prep
 %setup -q
 %patch0 -p1
-%patch1 -p1
+#%patch1 -p1
 
 %build
 . %{_prefix}/System/Library/Makefiles/GNUstep.sh

@@ -13,7 +13,6 @@ Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
 # Source0-md5:	b1fe102145f32aa05ebff41ffd7b9fd0
 Source1:	%{name}.init
 Patch0:		%{name}-link.patch
-#Patch1:		%{name}-ssl.patch
 URL:		http://www.gnustep.org/
 BuildRequires:	ffcall-devel
 BuildRequires:	gcc-objc
@@ -87,11 +86,15 @@ podstawowej biblioteki GNUstep.
 %prep
 %setup -q
 %patch0 -p1
-#%patch1 -p1
 
 %build
 . %{_prefix}/System/Library/Makefiles/GNUstep.sh
-%configure
+# gnustep can use one of 3 ways of getting argc,argv,env:
+# - /proc (default on Linux) - gnustep programs won't run in procless system
+# - fake-main hack (main is secretly renamed and wrapped)
+# - pass-arguments (program must call NSProcessInfo initialize)
+%configure \
+	--enable-pass-arguments
 
 %{__make} \
 	messages=yes
@@ -175,8 +178,6 @@ mv -f /etc/ld.so.conf.tmp /etc/ld.so.conf
 %{_prefix}/System/Library/Bundles/SSL.bundle/Resources
 %attr(755,root,root) %{_prefix}/System/Library/Bundles/SSL.bundle/%{gscpu}
 
-#%{_prefix}/System/Library/DocTemplates/*.gsdoc
-
 %docdir %{_prefix}/System/Library/Documentation
 %if %{with doc}
 %dir %{_prefix}/System/Library/Documentation/Developer/Base
@@ -201,10 +202,11 @@ mv -f /etc/ld.so.conf.tmp /etc/ld.so.conf
 %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/English
 %lang(fr) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/French
 %lang(de) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/German
+%lang(hu) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Hungarian
 %lang(it) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Italian
-%lang(zh_TW) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/TraditionalChinese
 %lang(ru) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Russian
 %lang(sk) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Slovak
+%lang(zh_TW) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/TraditionalChinese
 %lang(uk) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/UkraineRussian
 %{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSCharacterSets
 %dir %{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones

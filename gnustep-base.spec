@@ -176,7 +176,9 @@ mv -f /etc/ld.so.conf.tmp /etc/ld.so.conf
 %dir %{_prefix}/System/Library/Documentation/Developer/Base
 %{_prefix}/System/Library/Documentation/Developer/Base/ReleaseNotes
 %endif
+%dir %{_prefix}/System/Library/Documentation/man/man1
 %dir %{_prefix}/System/Library/Documentation/man/man8
+%{_prefix}/System/Library/Documentation/man/man1/*.1*
 %{_prefix}/System/Library/Documentation/man/man8/*.8*
 
 %dir %{_prefix}/System/Library/DTDs

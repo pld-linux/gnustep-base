@@ -5,12 +5,12 @@
 Summary:	GNUstep Base library package
 Summary(pl):	Podstawowa biblioteka GNUstep
 Name:		gnustep-base
-Version:	1.7.2
+Version:	1.7.3
 Release:	2
 License:	LGPL/GPL
 Group:		Libraries
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
-# Source0-md5:	bc1b74be8544ffe5fe4bf57a8df382c2
+# Source0-md5:	e5aa5d740e63b34c26e04676e9d406fd
 Source1:	%{name}.init
 Patch0:		%{name}-link.patch
 URL:		http://www.gnustep.org/
@@ -189,6 +189,7 @@ mv -f /etc/ld.so.conf.tmp /etc/ld.so.conf
 %lang(fr) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/French.lproj
 %lang(de) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/German.lproj
 %lang(it) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Italian.lproj
+%lang(tw) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/TraditionalChinese.lproj
 %dir %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages
 %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Locale.*
 %lang(nl) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Dutch
@@ -196,6 +197,7 @@ mv -f /etc/ld.so.conf.tmp /etc/ld.so.conf
 %lang(fr) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/French
 %lang(de) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/German
 %lang(it) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Italian
+%lang(tw) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/TraditionalChinese
 %lang(ru) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Russian
 %lang(sk) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Slovak
 %lang(uk) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/UkraineRussian
@@ -234,9 +236,10 @@ mv -f /etc/ld.so.conf.tmp /etc/ld.so.conf
 %{_prefix}/System/Library/Documentation/info/*.info*
 %endif
 
-%{_prefix}/System/Library/Headers/Foundation
-%{_prefix}/System/Library/Headers/gnustep
-%{_prefix}/System/Library/Headers/%{gscpu}
+%{_prefix}/System/Library/Headers/%{libcombo}/Foundation
+%{_prefix}/System/Library/Headers/%{libcombo}/GNUstepBase
+%{_prefix}/System/Library/Headers/%{libcombo}/gnustep
+%{_prefix}/System/Library/Headers/%{libcombo}/%{gscpu}
 
 %{_prefix}/System/Library/Libraries/%{gscpu}/%{gsos}/%{libcombo}/lib*.so
 %dir %{_prefix}/System/Library/Makefiles/Additional

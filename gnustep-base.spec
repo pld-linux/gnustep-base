@@ -26,7 +26,7 @@ BuildRequires:	zlib-devel
 Requires(post,preun):	grep
 Requires(post,preun):	/sbin/chkconfig
 Requires(post,postun):	/sbin/ldconfig
-Requires:	gnustep-make >= 1.7.1
+Requires:	gnustep-make >= 1.7.3
 # with gdomap in /etc/services
 Requires:	setup >= 2.4.3
 Conflicts:	gnustep-core
@@ -176,7 +176,6 @@ mv -f /etc/ld.so.conf.tmp /etc/ld.so.conf
 %dir %{_prefix}/System/Library/Documentation/Developer/Base
 %{_prefix}/System/Library/Documentation/Developer/Base/ReleaseNotes
 %endif
-%dir %{_prefix}/System/Library/Documentation/man/man1
 %dir %{_prefix}/System/Library/Documentation/man/man8
 %{_prefix}/System/Library/Documentation/man/man1/*.1*
 %{_prefix}/System/Library/Documentation/man/man8/*.8*
@@ -239,7 +238,7 @@ mv -f /etc/ld.so.conf.tmp /etc/ld.so.conf
 %{_prefix}/System/Library/Headers/%{libcombo}/Foundation
 %{_prefix}/System/Library/Headers/%{libcombo}/GNUstepBase
 %{_prefix}/System/Library/Headers/%{libcombo}/gnustep
-%{_prefix}/System/Library/Headers/%{libcombo}/%{gscpu}
+%{_prefix}/System/Library/Headers/%{libcombo}/%{gscpu}/%{gsos}/*.h
 
 %{_prefix}/System/Library/Libraries/%{gscpu}/%{gsos}/%{libcombo}/lib*.so
 %dir %{_prefix}/System/Library/Makefiles/Additional

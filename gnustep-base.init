@@ -2,8 +2,8 @@
 #
 # gnustep daemons
 #
-# chkconfig: 2345 35 65
-# description: Starts gnustep daemons
+# chkconfig:	2345 35 65
+# description:	Starts gnustep daemons
 #
 
 # Source function library.

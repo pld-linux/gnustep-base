@@ -6,9 +6,6 @@ Release:	1
 License:	GPL
 Vendor:		The Seawood Project
 Group:		Development/Tools
-Group(de):	Entwicklung/Werkzeuge
-Group(fr):	Development/Outils
-Group(pl):	Programowanie/Narzêdzia
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
 URL:		http://www.gnustep.org/
 BuildRequires:	gnustep-make gnustep-make-devel
@@ -38,9 +35,6 @@ losowych.
 Summary:	GNUstep Base headers
 Summary(pl):	Pliki nag³ówkowe podstawowej biblioteki GNUstep
 Group:		Development/Libraries
-Group(de):	Entwicklung/Libraries
-Group(fr):	Development/Librairies
-Group(pl):	Programowanie/Biblioteki
 Requires:	%{name} = %{version}, gnustep-make-devel
 Conflicts:	gnustep-core
 

@@ -8,7 +8,7 @@ Vendor:		The Seawood Project
 Group:		Development/Tools
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
 URL:		http://www.gnustep.org/
-BuildRequires:	gnustep-make gnustep-make-devel
+BuildRequires:	gnustep-make-devel
 BuildRequires:	libxml2 >= 2.2.3
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 Conflicts:	gnustep-core

@@ -5,15 +5,15 @@
 Summary:	GNUstep Base library package
 Summary(pl):	Podstawowa biblioteka GNUstep
 Name:		gnustep-base
-Version:	1.10.0
+Version:	1.10.1
 Release:	1
 License:	LGPL/GPL
 Group:		Libraries
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
-# Source0-md5:	a948608044062a8ce6fae230144f5519
+# Source0-md5:	94eaac8feb8d5ae95194a37cedc27544
 Source1:	%{name}.init
 Patch0:		%{name}-link.patch
-#Patch1:		%{name}-pass-arguments.patch
+Patch1:		%{name}-pass-arguments.patch
 URL:		http://www.gnustep.org/
 BuildRequires:	ffcall-devel
 BuildRequires:	gcc-objc
@@ -83,7 +83,7 @@ podstawowej biblioteki GNUstep.
 %prep
 %setup -q
 %patch0 -p1
-#%patch1 -p1
+%patch1 -p1
 
 %build
 . %{_prefix}/System/Library/Makefiles/GNUstep.sh
@@ -98,6 +98,7 @@ podstawowej biblioteki GNUstep.
 	messages=yes
 
 %if %{with doc}
+export LD_LIBRARY_PATH=`pwd`/Source/obj
 # requires already installed gnustep-base
 %{__make} -C Documentation
 %{__make} -C Documentation/manual
@@ -117,7 +118,7 @@ rm -rf $RPM_BUILD_ROOT
 	GNUSTEP_INSTALLATION_DIR=$RPM_BUILD_ROOT%{_prefix}/System
 # not (yet?) supported by rpm-compress-doc
 find $RPM_BUILD_ROOT%{_prefix}/System/Library/Documentation \
-	-type f -a ! -name '*.html' -a ! -name '*.gz' | xargs gzip -9nf
+	-type f -a ! -name '*.html' -a ! -name '*.gz' -a ! -name '*.jpg' -a ! -name '*.css' | xargs gzip -9nf
 %endif
 
 install -d $RPM_BUILD_ROOT%{_initrddir}
@@ -178,6 +179,9 @@ mv -f /etc/ld.so.conf.tmp /etc/ld.so.conf
 
 %docdir %{_prefix}/System/Library/Documentation
 %if %{with doc}
+%{_prefix}/System/Library/Documentation/*.jpg
+%{_prefix}/System/Library/Documentation/index.html
+%{_prefix}/System/Library/Documentation/style.css
 %dir %{_prefix}/System/Library/Documentation/Developer/Base
 %{_prefix}/System/Library/Documentation/Developer/Base/ReleaseNotes
 %endif
@@ -187,8 +191,10 @@ mv -f /etc/ld.so.conf.tmp /etc/ld.so.conf
 
 %dir %{_prefix}/System/Library/DTDs
 %{_prefix}/System/Library/DTDs/*.dtd
+%{_prefix}/System/Library/DTDs/*.rnc
 
 %dir %{_prefix}/System/Library/Libraries/Resources/gnustep-base
+%{_prefix}/System/Library/Libraries/Resources/gnustep-base/*.plist
 %{_prefix}/System/Library/Libraries/Resources/gnustep-base/English.lproj
 %lang(fr) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/French.lproj
 %lang(de) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/German.lproj
@@ -239,6 +245,7 @@ mv -f /etc/ld.so.conf.tmp /etc/ld.so.conf
 %{_prefix}/System/Library/Documentation/Developer/Base/Reference
 %{_prefix}/System/Library/Documentation/Developer/BaseAdditions
 %{_prefix}/System/Library/Documentation/Developer/CodingStandards
+%{_prefix}/System/Library/Documentation/Developer/Tools
 %{_prefix}/System/Library/Documentation/info/*.info*
 %endif
 

@@ -5,15 +5,15 @@
 Summary:	GNUstep Base library package
 Summary(pl):	Podstawowa biblioteka GNUstep
 Name:		gnustep-base
-Version:	1.9.1
+Version:	1.9.2
 Release:	1
 License:	LGPL/GPL
 Group:		Libraries
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
-# Source0-md5:	ae5a29e32a392c78ea2e93a639487817
+# Source0-md5:	b1fe102145f32aa05ebff41ffd7b9fd0
 Source1:	%{name}.init
 Patch0:		%{name}-link.patch
-Patch1:		%{name}-ssl.patch
+#Patch1:		%{name}-ssl.patch
 URL:		http://www.gnustep.org/
 BuildRequires:	ffcall-devel
 BuildRequires:	gcc-objc
@@ -87,7 +87,7 @@ podstawowej biblioteki GNUstep.
 %prep
 %setup -q
 %patch0 -p1
-%patch1 -p1
+#%patch1 -p1
 
 %build
 . %{_prefix}/System/Library/Makefiles/GNUstep.sh
@@ -175,7 +175,7 @@ mv -f /etc/ld.so.conf.tmp /etc/ld.so.conf
 %{_prefix}/System/Library/Bundles/SSL.bundle/Resources
 %attr(755,root,root) %{_prefix}/System/Library/Bundles/SSL.bundle/%{gscpu}
 
-%{_prefix}/System/Library/DocTemplates/*.gsdoc
+#%{_prefix}/System/Library/DocTemplates/*.gsdoc
 
 %docdir %{_prefix}/System/Library/Documentation
 %if %{with doc}

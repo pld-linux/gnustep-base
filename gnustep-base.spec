@@ -1,19 +1,20 @@
 Summary:	GNUstep Base library package
 Summary(pl):	Podstawowa biblioteka GNUstep
 Name:		gnustep-base
-Version:	1.0.2
-Release:	1
+Version:	1.5.1
+Release:	0.1
 License:	GPL
 Vendor:		The Seawood Project
 Group:		Development/Tools
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
 URL:		http://www.gnustep.org/
-BuildRequires:	gnustep-make-devel
+BuildRequires:	gnustep-make-devel >=1.5.1
 BuildRequires:	libxml2 >= 2.2.3
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 Conflicts:	gnustep-core
 Requires:	gnustep-make
 Prereq:		/sbin/chkconfig
+%define         _prefix         /usr
 
 %description
 The GNUstep Base Library is a library of general-purpose,
@@ -50,11 +51,19 @@ podstawowej biblioteki GNUstep.
 %setup -q
 
 %build
-if [ -z "$GNUSTEP_SYSTEM_ROOT" ]; then
-   . %{_prefix}/GNUstep/System/Makefiles/GNUstep.sh
-fi
-CFLAGS="%{rpmcflags}" ./configure --prefix=%{_prefix}/GNUstep
+rm -f missing
+%{__gettextize}
+%{__libtoolize}
+%{__aclocal}
+%{__autoheader}
+%{__autoconf}
+%configure
+#if [ -z "$GNUSTEP_SYSTEM_ROOT" ]; then
+#   . %{_prefix}/GNUstep/System/Makefiles/GNUstep.sh
+#fi
+#CFLAGS="%{rpmcflags}" ./configure --prefix=%{_prefix}/GNUstep
 # --with-library-combo=%{libcombo}
+
 %{__make}
 
 %install

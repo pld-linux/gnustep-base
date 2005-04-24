@@ -5,12 +5,12 @@
 Summary:	GNUstep Base library package
 Summary(pl):	Podstawowa biblioteka GNUstep
 Name:		gnustep-base
-Version:	1.10.1
+Version:	1.10.3
 Release:	1
 License:	LGPL/GPL
 Group:		Libraries
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
-# Source0-md5:	94eaac8feb8d5ae95194a37cedc27544
+# Source0-md5:	48d4f1dd5d01747c54c444a76b06a87d
 Source1:	%{name}.init
 Patch0:		%{name}-link.patch
 Patch1:		%{name}-pass-arguments.patch
@@ -221,6 +221,7 @@ mv -f /etc/ld.so.conf.tmp /etc/ld.so.conf
 %{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/regions
 %{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/zones
 %{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/*.m
+%{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/*.plist
 %config(noreplace) %verify(not size mtime md5) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/localtime
 
 %attr(755,root,root) %{_prefix}/System/Library/Libraries/%{gscpu}/%{gsos}/%{libcombo}/lib*.so.*

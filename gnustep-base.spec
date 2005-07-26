@@ -5,29 +5,28 @@
 Summary:	GNUstep Base library package
 Summary(pl):	Podstawowa biblioteka GNUstep
 Name:		gnustep-base
-Version:	1.10.3
+Version:	1.11.0
 Release:	1
 License:	LGPL/GPL
 Group:		Libraries
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
-# Source0-md5:	48d4f1dd5d01747c54c444a76b06a87d
+# Source0-md5:	5150e8d1416e50abf9fd4110fb1ba55b
 Source1:	%{name}.init
-Patch0:		%{name}-link.patch
-Patch1:		%{name}-pass-arguments.patch
+Patch0:		%{name}-pass-arguments.patch
 URL:		http://www.gnustep.org/
 BuildRequires:	ffcall-devel
 BuildRequires:	gcc-objc
 BuildRequires:	gmp-devel
 %{?with_doc:BuildRequires:	gnustep-base-devel >= 1.8.0}
 %{?with_doc:BuildRequires:	docbook-dtd41-sgml}
-BuildRequires:	gnustep-make-devel >= 1.10.0
+BuildRequires:	gnustep-make-devel >= 1.11.0
 BuildRequires:	libxml2-devel >= 2.3.0
 BuildRequires:	openssl-devel >= 0.9.7d
 BuildRequires:	zlib-devel
 Requires(post,preun):	grep
 Requires(post,preun):	/sbin/chkconfig
 Requires(post,postun):	/sbin/ldconfig
-Requires:	gnustep-make >= 1.10.0
+Requires:	gnustep-make >= 1.11.0
 # with gdomap in /etc/services
 Requires:	setup >= 2.4.3
 Conflicts:	gnustep-core
@@ -67,7 +66,7 @@ Requires:	%{name} = %{version}-%{release}
 Requires:	ffcall-devel
 Requires:	gcc-objc
 Requires:	gmp-devel
-Requires:	gnustep-make-devel >= 1.8.0
+Requires:	gnustep-make-devel >= 1.11.0
 Requires:	libxml2-devel
 Requires:	zlib-devel
 Conflicts:	gnustep-core
@@ -83,7 +82,6 @@ podstawowej biblioteki GNUstep.
 %prep
 %setup -q
 %patch0 -p1
-%patch1 -p1
 
 %build
 . %{_prefix}/System/Library/Makefiles/GNUstep.sh
@@ -199,6 +197,7 @@ mv -f /etc/ld.so.conf.tmp /etc/ld.so.conf
 %lang(fr) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/French.lproj
 %lang(de) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/German.lproj
 %lang(it) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Italian.lproj
+%lang(es) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Spanish.lproj
 %lang(zh_TW) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/TraditionalChinese.lproj
 %dir %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages
 %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Locale.*
@@ -210,9 +209,9 @@ mv -f /etc/ld.so.conf.tmp /etc/ld.so.conf
 %lang(it) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Italian
 %lang(ru) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Russian
 %lang(sk) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Slovak
+%lang(es) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Spanish
 %lang(zh_TW) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/TraditionalChinese
 %lang(uk) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/UkraineRussian
-%{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSCharacterSets
 %dir %{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones
 %{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/GNUmakefile
 %{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/GNUstep_zones

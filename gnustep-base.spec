@@ -6,7 +6,7 @@ Summary:	GNUstep Base library package
 Summary(pl):	Podstawowa biblioteka GNUstep
 Name:		gnustep-base
 Version:	1.11.0
-Release:	1
+Release:	2
 License:	LGPL/GPL
 Group:		Libraries
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
@@ -23,9 +23,10 @@ BuildRequires:	gnustep-make-devel >= 1.11.0
 BuildRequires:	libxml2-devel >= 2.3.0
 BuildRequires:	openssl-devel >= 0.9.7d
 BuildRequires:	zlib-devel
-Requires(post,preun):	grep
 Requires(post,preun):	/sbin/chkconfig
-Requires(post,postun):	/sbin/ldconfig
+Requires(post):	/sbin/ldconfig
+Requires(triggerpostun):	sed >= 4.0
+Requires:	glibc >= 6:2.3.5-7.6
 Requires:	gnustep-make >= 1.11.0
 # with gdomap in /etc/services
 Requires:	setup >= 2.4.3
@@ -125,15 +126,13 @@ sed -e "s!@TOOLSARCHDIR@!%{_prefix}/System/Tools/%{gscpu}/%{gsos}!" %{SOURCE1} \
 
 echo 'GMT' > $RPM_BUILD_ROOT%{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/localtime
 
+install -d $RPM_BUILD_ROOT/etc/ld.so.conf.d
+echo '%{_prefix}/System/Library/Libraries/%{gscpu}/%{gsos}/%{libcombo}' > $RPM_BUILD_ROOT/etc/ld.so.conf.d/%{name}.conf
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %post
-umask 022
-if ! grep -q '%{_prefix}/System/Library/Libraries/%{gscpu}/%{gsos}/%{libcombo}' \
-    /etc/ld.so.conf ; then
-	echo "%{_prefix}/System/Library/Libraries/%{gscpu}/%{gsos}/%{libcombo}" >> /etc/ld.so.conf
-fi
 /sbin/ldconfig
 /sbin/chkconfig --add gnustep
 if [ -f /var/lock/subsys/gnustep ]; then
@@ -150,21 +149,10 @@ if [ "$1" = "0" ]; then
 	/sbin/chkconfig --del gnustep
 fi
 
-%postun
-if [ "$1" = "0" ]; then
-	umask 022
-	grep -v "^%{_prefix}/System/Library/Libraries/%{gscpu}/%{gsos}/%{libcombo}$" /etc/ld.so.conf \
-		> /etc/ld.so.conf.tmp
-	mv -f /etc/ld.so.conf.tmp /etc/ld.so.conf
-	/sbin/ldconfig
-fi
+%postun -p /sbin/ldconfig
 
-%triggerpostun -- gnustep-base < 1.7.0
-umask 022
-grep -v "^%{_prefix}/Libraries/%{gscpu}/%{gsos}/%{libcombo}$" /etc/ld.so.conf \
-	> /etc/ld.so.conf.tmp
-mv -f /etc/ld.so.conf.tmp /etc/ld.so.conf
-/sbin/ldconfig
+%triggerpostun -- %{name} < 1.11.0-1.1
+sed -i -e "/^%(echo %{_prefix}/Libraries/%{gscpu}/%{gsos}/%{libcombo} | sed -e 's,/,\\/,g')$/d" /etc/ld.so.conf
 
 %files
 %defattr(644,root,root,755)

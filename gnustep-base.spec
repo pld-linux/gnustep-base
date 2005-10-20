@@ -6,7 +6,7 @@ Summary:	GNUstep Base library package
 Summary(pl):	Podstawowa biblioteka GNUstep
 Name:		gnustep-base
 Version:	1.11.0
-Release:	2
+Release:	3
 License:	LGPL/GPL
 Group:		Libraries
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
@@ -157,6 +157,7 @@ sed -i -e "/^%(echo %{_prefix}/Libraries/%{gscpu}/%{gsos}/%{libcombo} | sed -e '
 %files
 %defattr(644,root,root,755)
 %doc ChangeLog*
+%verify(not md5 mtime size) /etc/ld.so.conf.d/*.conf
 %attr(754,root,root) %{_initrddir}/gnustep
 
 %dir %{_prefix}/System/Library/Bundles/SSL.bundle

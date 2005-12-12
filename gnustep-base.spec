@@ -14,17 +14,17 @@ Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
 Source1:	%{name}.init
 Patch0:		%{name}-pass-arguments.patch
 URL:		http://www.gnustep.org/
+%{?with_doc:BuildRequires:	docbook-dtd41-sgml}
 BuildRequires:	ffcall-devel
 BuildRequires:	gcc-objc
 BuildRequires:	gmp-devel
 %{?with_doc:BuildRequires:	gnustep-base-devel >= 1.8.0}
-%{?with_doc:BuildRequires:	docbook-dtd41-sgml}
 BuildRequires:	gnustep-make-devel >= 1.11.0
 BuildRequires:	libxml2-devel >= 2.3.0
 BuildRequires:	openssl-devel >= 0.9.7d
 BuildRequires:	zlib-devel
-Requires(post,preun):	/sbin/chkconfig
 Requires(post):	/sbin/ldconfig
+Requires(post,preun):	/sbin/chkconfig
 Requires(triggerpostun):	sed >= 4.0
 Requires:	glibc >= 6:2.3.5-7.6
 Requires:	gnustep-make >= 1.11.0
@@ -210,7 +210,7 @@ sed -i -e "/^%(echo %{_prefix}/Libraries/%{gscpu}/%{gsos}/%{libcombo} | sed -e '
 %{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/zones
 %{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/*.m
 %{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/*.plist
-%config(noreplace) %verify(not size mtime md5) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/localtime
+%config(noreplace) %verify(not md5 mtime size) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/localtime
 
 %attr(755,root,root) %{_prefix}/System/Library/Libraries/%{gscpu}/%{gsos}/%{libcombo}/lib*.so.*
 

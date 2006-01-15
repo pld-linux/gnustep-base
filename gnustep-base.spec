@@ -5,12 +5,12 @@
 Summary:	GNUstep Base library package
 Summary(pl):	Podstawowa biblioteka GNUstep
 Name:		gnustep-base
-Version:	1.11.1
+Version:	1.11.2
 Release:	1
 License:	LGPL/GPL
 Group:		Libraries
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
-# Source0-md5:	74a75b8cabc77f2e583fe0e9249796da
+# Source0-md5:	f370c912a6150371df0e1bb63eab50d2
 Source1:	%{name}.init
 Patch0:		%{name}-pass-arguments.patch
 URL:		http://www.gnustep.org/
@@ -19,7 +19,7 @@ BuildRequires:	ffcall-devel
 BuildRequires:	gcc-objc
 BuildRequires:	gmp-devel
 %{?with_doc:BuildRequires:	gnustep-base-devel >= 1.8.0}
-BuildRequires:	gnustep-make-devel >= 1.11.0
+BuildRequires:	gnustep-make-devel >= 1.11.2
 BuildRequires:	libxml2-devel >= 2.3.0
 BuildRequires:	openssl-devel >= 0.9.7d
 BuildRequires:	zlib-devel
@@ -27,7 +27,7 @@ Requires(post):	/sbin/ldconfig
 Requires(post,preun):	/sbin/chkconfig
 Requires(triggerpostun):	sed >= 4.0
 Requires:	glibc >= 6:2.3.5-7.6
-Requires:	gnustep-make >= 1.11.0
+Requires:	gnustep-make >= 1.11.2
 # with gdomap in /etc/services
 Requires:	setup >= 2.4.3
 Conflicts:	gnustep-core
@@ -67,7 +67,7 @@ Requires:	%{name} = %{version}-%{release}
 Requires:	ffcall-devel
 Requires:	gcc-objc
 Requires:	gmp-devel
-Requires:	gnustep-make-devel >= 1.11.0
+Requires:	gnustep-make-devel >= 1.11.2
 Requires:	libxml2-devel
 Requires:	zlib-devel
 Conflicts:	gnustep-core
@@ -85,7 +85,9 @@ podstawowej biblioteki GNUstep.
 %patch0 -p1
 
 %build
-. %{_prefix}/System/Library/Makefiles/GNUstep.sh
+export GNUSTEP_MAKEFILES=%{_prefix}/System/Library/Makefiles
+export GNUSTEP_TARGET_DIR=%{gscpu}/linux-gnu
+
 # gnustep can use one of 3 ways of getting argc,argv,env:
 # - /proc (default on Linux) - gnustep programs won't run in procless system
 # - fake-main hack (main is secretly renamed and wrapped)
@@ -99,13 +101,17 @@ podstawowej biblioteki GNUstep.
 %if %{with doc}
 export LD_LIBRARY_PATH=`pwd`/Source/obj
 # requires already installed gnustep-base
-%{__make} -C Documentation
+# XXX: GNUSTEP_OBJ_PREFIX=obj is workaround for Tools/DocMakefile
+%{__make} -C Documentation \
+	GNUSTEP_OBJ_PREFIX=obj
 %{__make} -C Documentation/manual
 %endif
 
 %install
 rm -rf $RPM_BUILD_ROOT
-. %{_prefix}/System/Library/Makefiles/GNUstep.sh
+export GNUSTEP_MAKEFILES=%{_prefix}/System/Library/Makefiles
+export GNUSTEP_TARGET_DIR=%{gscpu}/linux-gnu
+
 %{__make} install \
 	INSTALL_ROOT_DIR=$RPM_BUILD_ROOT \
 	GNUSTEP_INSTALLATION_DIR=$RPM_BUILD_ROOT%{_prefix}/System

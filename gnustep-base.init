@@ -9,11 +9,14 @@
 # Source function library.
 . /etc/rc.d/init.d/functions
 
+# Get service config
+[ -f /etc/sysconfig/gnustep ] && . /etc/sysconfig/gnustep
+
 case "$1" in
   start)
 	if [ ! -f /var/lock/subsys/gnustep ]; then
 		msg_starting "gnustep services"
-		daemon @TOOLSARCHDIR@/gdomap
+		daemon @TOOLSARCHDIR@/gdomap $GDOMAP_OPTIONS
 		RETVAL=$?
 		[ $RETVAL -eq 0 ] && touch /var/lock/subsys/gnustep
 	else

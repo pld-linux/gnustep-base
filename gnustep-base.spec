@@ -6,12 +6,13 @@ Summary:	GNUstep Base library package
 Summary(pl):	Podstawowa biblioteka GNUstep
 Name:		gnustep-base
 Version:	1.11.2
-Release:	1
+Release:	2
 License:	LGPL/GPL
 Group:		Libraries
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
 # Source0-md5:	f370c912a6150371df0e1bb63eab50d2
 Source1:	%{name}.init
+Source2:	%{name}.sysconfig
 Patch0:		%{name}-pass-arguments.patch
 URL:		http://www.gnustep.org/
 %{?with_doc:BuildRequires:	docbook-dtd41-sgml}
@@ -130,6 +131,9 @@ install -d $RPM_BUILD_ROOT%{_initrddir}
 sed -e "s!@TOOLSARCHDIR@!%{_prefix}/System/Tools/%{gscpu}/%{gsos}!" %{SOURCE1} \
 	> $RPM_BUILD_ROOT%{_initrddir}/gnustep
 
+install -d $RPM_BUILD_ROOT/etc/sysconfig
+install %{SOURCE2} $RPM_BUILD_ROOT/etc/sysconfig/gnustep
+
 echo 'GMT' > $RPM_BUILD_ROOT%{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/localtime
 
 install -d $RPM_BUILD_ROOT/etc/ld.so.conf.d
@@ -165,6 +169,7 @@ sed -i -e "/^%(echo %{_prefix}/Libraries/%{gscpu}/%{gsos}/%{libcombo} | sed -e '
 %doc ChangeLog*
 /etc/ld.so.conf.d/%{name}.conf
 %attr(754,root,root) %{_initrddir}/gnustep
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/gnustep
 
 %dir %{_prefix}/System/Library/Bundles/SSL.bundle
 %{_prefix}/System/Library/Bundles/SSL.bundle/Resources

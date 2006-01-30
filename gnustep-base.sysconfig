@@ -3,6 +3,6 @@ SERVICE_RUN_NICE_LEVEL="+0"
 
 # command line options for gdomap
 #GDOMAP_OPTIONS="-a /etc/gdomapip.conf"
-GDOMAP_OPTIONS=""
+GDOMAP_OPTIONS=
 
 # vi: filetype=sh

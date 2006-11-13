@@ -36,15 +36,6 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define         _prefix         /usr/%{_lib}/GNUstep
 
-%define		libcombo	gnu-gnu-gnu
-%define		gsos		linux-gnu
-%ifarch %{ix86}
-%define		gscpu		ix86
-%else
-# also s/alpha.*/alpha/, but we use only "alpha" arch for now
-%define		gscpu		%(echo %{_target_cpu} | sed -e 's/amd64/x86_64/;s/ppc/powerpc/')
-%endif
-
 %description
 The GNUstep Base Library is a library of general-purpose,
 non-graphical Objective C objects. For example, it includes classes
@@ -87,7 +78,6 @@ podstawowej biblioteki GNUstep.
 
 %build
 export GNUSTEP_MAKEFILES=%{_prefix}/System/Library/Makefiles
-export GNUSTEP_TARGET_DIR=%{gscpu}/linux-gnu
 
 # gnustep can use one of 3 ways of getting argc,argv,env:
 # - /proc (default on Linux) - gnustep programs won't run in procless system
@@ -111,7 +101,6 @@ export LD_LIBRARY_PATH=`pwd`/Source/obj
 %install
 rm -rf $RPM_BUILD_ROOT
 export GNUSTEP_MAKEFILES=%{_prefix}/System/Library/Makefiles
-export GNUSTEP_TARGET_DIR=%{gscpu}/linux-gnu
 
 %{__make} install \
 	INSTALL_ROOT_DIR=$RPM_BUILD_ROOT \
@@ -128,7 +117,7 @@ find $RPM_BUILD_ROOT%{_prefix}/System/Library/Documentation \
 %endif
 
 install -d $RPM_BUILD_ROOT%{_initrddir}
-sed -e "s!@TOOLSARCHDIR@!%{_prefix}/System/Tools/%{gscpu}/%{gsos}!" %{SOURCE1} \
+sed -e "s!@TOOLSARCHDIR@!%{_prefix}/System/Tools/!" %{SOURCE1} \
 	> $RPM_BUILD_ROOT%{_initrddir}/gnustep
 
 install -d $RPM_BUILD_ROOT/etc/sysconfig
@@ -137,7 +126,7 @@ install %{SOURCE2} $RPM_BUILD_ROOT/etc/sysconfig/gnustep
 echo 'GMT' > $RPM_BUILD_ROOT%{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/localtime
 
 install -d $RPM_BUILD_ROOT/etc/ld.so.conf.d
-echo '%{_prefix}/System/Library/Libraries/%{gscpu}/%{gsos}/%{libcombo}' > $RPM_BUILD_ROOT/etc/ld.so.conf.d/%{name}.conf
+echo '%{_prefix}/System/Library/Libraries/' > $RPM_BUILD_ROOT/etc/ld.so.conf.d/%{name}.conf
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -162,7 +151,7 @@ fi
 %postun -p /sbin/ldconfig
 
 %triggerpostun -- %{name} < 1.11.0-1.1
-sed -i -e "/^%(echo %{_prefix}/Libraries/%{gscpu}/%{gsos}/%{libcombo} | sed -e 's,/,\\/,g')$/d" /etc/ld.so.conf
+sed -i -e "/^%(echo %{_prefix}/Libraries/ | sed -e 's,/,\\/,g')$/d" /etc/ld.so.conf
 
 %files
 %defattr(644,root,root,755)
@@ -172,8 +161,8 @@ sed -i -e "/^%(echo %{_prefix}/Libraries/%{gscpu}/%{gsos}/%{libcombo} | sed -e '
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/gnustep
 
 %dir %{_prefix}/System/Library/Bundles/SSL.bundle
+%attr(755,root,root) %{_prefix}/System/Library/Bundles/SSL.bundle/SSL
 %{_prefix}/System/Library/Bundles/SSL.bundle/Resources
-%attr(755,root,root) %{_prefix}/System/Library/Bundles/SSL.bundle/%{gscpu}
 
 %docdir %{_prefix}/System/Library/Documentation
 %if %{with doc}
@@ -223,15 +212,12 @@ sed -i -e "/^%(echo %{_prefix}/Libraries/%{gscpu}/%{gsos}/%{libcombo} | sed -e '
 %{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/*.plist
 %config(noreplace) %verify(not md5 mtime size) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/localtime
 
-%attr(755,root,root) %{_prefix}/System/Library/Libraries/%{gscpu}/%{gsos}/%{libcombo}/lib*.so.*
+%attr(755,root,root) %{_prefix}/System/Library/Libraries/lib*.so.*
 
-%dir %{_prefix}/System/Tools/%{gscpu}
-%dir %{_prefix}/System/Tools/%{gscpu}/%{gsos}
 # is suid necessary here??? it runs as daemon...
-#%attr(4755,root,root) %{_prefix}/System/Tools/%{gscpu}/%{gsos}/gdomap
-%attr(755,root,root) %{_prefix}/System/Tools/%{gscpu}/%{gsos}/gdomap
-%dir %{_prefix}/System/Tools/%{gscpu}/%{gsos}/%{libcombo}
-%attr(755,root,root) %{_prefix}/System/Tools/%{gscpu}/%{gsos}/%{libcombo}/*
+#%attr(4755,root,root) %{_prefix}/System/Tools/gdomap
+%dir %{_prefix}/System/Tools/
+%attr(755,root,root) %{_prefix}/System/Tools/*
 
 %files devel
 %defattr(644,root,root,755)
@@ -246,11 +232,11 @@ sed -i -e "/^%(echo %{_prefix}/Libraries/%{gscpu}/%{gsos}/%{libcombo} | sed -e '
 %{_prefix}/System/Library/Documentation/info/*.info*
 %endif
 
-%{_prefix}/System/Library/Headers/%{libcombo}/Foundation
-%{_prefix}/System/Library/Headers/%{libcombo}/GNUstepBase
-%{_prefix}/System/Library/Headers/%{libcombo}/gnustep
-%{_prefix}/System/Library/Headers/%{libcombo}/%{gscpu}/%{gsos}/*.h
+%{_prefix}/System/Library/Headers/Foundation
+%{_prefix}/System/Library/Headers/GNUstepBase
+%{_prefix}/System/Library/Headers/gnustep
+%{_prefix}/System/Library/Headers/*.h
 
-%{_prefix}/System/Library/Libraries/%{gscpu}/%{gsos}/%{libcombo}/lib*.so
+%{_prefix}/System/Library/Libraries/lib*.so
 %dir %{_prefix}/System/Library/Makefiles/Additional
 %{_prefix}/System/Library/Makefiles/Additional/base.make

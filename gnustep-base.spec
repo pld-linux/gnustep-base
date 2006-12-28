@@ -219,7 +219,7 @@ sed -i -e "/^%(echo %{_prefix}/Libraries/ | sed -e 's,/,\\/,g')$/d" /etc/ld.so.c
 %{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/*.plist
 %config(noreplace) %verify(not md5 mtime size) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/localtime
 
-%attr(755,root,root) %{_prefix}/System/Library/Libraries/lib*.so.*
+%attr(755,root,root) %{_prefix}/System/Library/Libraries/libgnustep-base.so.*
 
 # is suid necessary here??? it runs as daemon...
 #%attr(4755,root,root) %{_prefix}/System/Tools/gdomap
@@ -244,6 +244,6 @@ sed -i -e "/^%(echo %{_prefix}/Libraries/ | sed -e 's,/,\\/,g')$/d" /etc/ld.so.c
 %{_prefix}/System/Library/Headers/gnustep
 %{_prefix}/System/Library/Headers/*.h
 
-%{_prefix}/System/Library/Libraries/lib*.so
+%attr(755,root,root) %{_prefix}/System/Library/Libraries/libgnustep-base.so
 %dir %{_prefix}/System/Library/Makefiles/Additional
 %{_prefix}/System/Library/Makefiles/Additional/base.make

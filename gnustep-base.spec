@@ -5,12 +5,12 @@
 Summary:	GNUstep Base library package
 Summary(pl):	Podstawowa biblioteka GNUstep
 Name:		gnustep-base
-Version:	1.11.2
-Release:	2
+Version:	1.13.0
+Release:	1
 License:	LGPL/GPL
 Group:		Libraries
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
-# Source0-md5:	f370c912a6150371df0e1bb63eab50d2
+# Source0-md5:	edd01516ba49915150f030848efc0baf
 Source1:	%{name}.init
 Source2:	%{name}.sysconfig
 Patch0:		%{name}-pass-arguments.patch
@@ -77,7 +77,9 @@ podstawowej biblioteki GNUstep.
 %patch0 -p1
 
 %build
+# don't assume that GNUstep.sh is imported in environment
 export GNUSTEP_MAKEFILES=%{_prefix}/System/Library/Makefiles
+export GNUSTEP_FLATTENED=yes
 
 # gnustep can use one of 3 ways of getting argc,argv,env:
 # - /proc (default on Linux) - gnustep programs won't run in procless system
@@ -86,21 +88,22 @@ export GNUSTEP_MAKEFILES=%{_prefix}/System/Library/Makefiles
 %configure \
 	--enable-pass-arguments
 
+# fake GUI_MAKE_LOADED to avoid linking with gnustep-gui
 %{__make} \
+	GUI_MAKE_LOADED=yes \
 	messages=yes
 
 %if %{with doc}
 export LD_LIBRARY_PATH=`pwd`/Source/obj
 # requires already installed gnustep-base
-# XXX: GNUSTEP_OBJ_PREFIX=obj is workaround for Tools/DocMakefile
-%{__make} -C Documentation \
-	GNUSTEP_OBJ_PREFIX=obj
+%{__make} -C Documentation
 %{__make} -C Documentation/manual
 %endif
 
 %install
 rm -rf $RPM_BUILD_ROOT
 export GNUSTEP_MAKEFILES=%{_prefix}/System/Library/Makefiles
+export GNUSTEP_FLATTENED=yes
 
 %{__make} install \
 	INSTALL_ROOT_DIR=$RPM_BUILD_ROOT \
@@ -126,7 +129,7 @@ install %{SOURCE2} $RPM_BUILD_ROOT/etc/sysconfig/gnustep
 echo 'GMT' > $RPM_BUILD_ROOT%{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/localtime
 
 install -d $RPM_BUILD_ROOT/etc/ld.so.conf.d
-echo '%{_prefix}/System/Library/Libraries/' > $RPM_BUILD_ROOT/etc/ld.so.conf.d/%{name}.conf
+echo '%{_prefix}/System/Library/Libraries' > $RPM_BUILD_ROOT/etc/ld.so.conf.d/%{name}.conf
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -183,24 +186,28 @@ sed -i -e "/^%(echo %{_prefix}/Libraries/ | sed -e 's,/,\\/,g')$/d" /etc/ld.so.c
 %dir %{_prefix}/System/Library/Libraries/Resources/gnustep-base
 %{_prefix}/System/Library/Libraries/Resources/gnustep-base/*.plist
 %{_prefix}/System/Library/Libraries/Resources/gnustep-base/English.lproj
+%lang(eo) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Esperanto.lproj
 %lang(fr) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/French.lproj
 %lang(de) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/German.lproj
 %lang(it) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Italian.lproj
+%lang(ko) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Korean.lproj
 %lang(es) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Spanish.lproj
 %lang(zh_TW) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/TraditionalChinese.lproj
 %dir %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages
 %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Locale.*
 %lang(nl) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Dutch
 %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/English
+%lang(eo) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Esperanto
 %lang(fr) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/French
 %lang(de) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/German
 %lang(hu) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Hungarian
 %lang(it) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Italian
+%lang(ko) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Korean
 %lang(ru) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Russian
 %lang(sk) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Slovak
 %lang(es) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Spanish
 %lang(zh_TW) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/TraditionalChinese
-%lang(uk) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/UkraineRussian
+%lang(uk) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Ukrainian
 %dir %{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones
 %{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/GNUmakefile
 %{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/GNUstep_zones
@@ -216,7 +223,7 @@ sed -i -e "/^%(echo %{_prefix}/Libraries/ | sed -e 's,/,\\/,g')$/d" /etc/ld.so.c
 
 # is suid necessary here??? it runs as daemon...
 #%attr(4755,root,root) %{_prefix}/System/Tools/gdomap
-%dir %{_prefix}/System/Tools/
+%dir %{_prefix}/System/Tools
 %attr(755,root,root) %{_prefix}/System/Tools/*
 
 %files devel

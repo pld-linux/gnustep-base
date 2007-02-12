@@ -3,7 +3,7 @@
 %bcond_without	doc	# don't generate documentation (bootstrap build w/o gnustep-base)
 #
 Summary:	GNUstep Base library package
-Summary(pl):	Podstawowa biblioteka GNUstep
+Summary(pl.UTF-8):   Podstawowa biblioteka GNUstep
 Name:		gnustep-base
 Version:	1.13.0
 Release:	1
@@ -44,16 +44,16 @@ invocations, notifications, notification dispatchers, moments in time,
 network ports, remote object messaging support (distributed objects),
 event loops, and random number generators.
 
-%description -l pl
-Podstawowa biblioteka GNUstep jest bibliotek± innych ni¿ graficzne
-obiektów ogólnego przeznaczenia dla Objective C. Zawiera np. klasy dla
-stringów, kolekcji, strumieni, koderów typów, powiadamiania, portów
-sieci, obiektów rozproszonych, pêtli zdarzeñ, generatorów liczb
+%description -l pl.UTF-8
+Podstawowa biblioteka GNUstep jest bibliotekÄ… innych niÅ¼ graficzne
+obiektÃ³w ogÃ³lnego przeznaczenia dla Objective C. Zawiera np. klasy dla
+stringÃ³w, kolekcji, strumieni, koderÃ³w typÃ³w, powiadamiania, portÃ³w
+sieci, obiektÃ³w rozproszonych, pÄ™tli zdarzeÅ„, generatorÃ³w liczb
 losowych.
 
 %package devel
 Summary:	GNUstep Base headers
-Summary(pl):	Pliki nag³ówkowe podstawowej biblioteki GNUstep
+Summary(pl.UTF-8):   Pliki nagÅ‚Ã³wkowe podstawowej biblioteki GNUstep
 Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
 Requires:	ffcall-devel
@@ -68,8 +68,8 @@ Conflicts:	gnustep-core
 Header files required to build applications against the GNUstep Base
 library.
 
-%description devel -l pl
-Pliki nag³ówkowe potrzebne do budowania aplikacji u¿ywaj±cych
+%description devel -l pl.UTF-8
+Pliki nagÅ‚Ã³wkowe potrzebne do budowania aplikacji uÅ¼ywajÄ…cych
 podstawowej biblioteki GNUstep.
 
 %prep

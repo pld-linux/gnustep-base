@@ -3,7 +3,7 @@
 %bcond_without	doc	# don't generate documentation (bootstrap build w/o gnustep-base)
 #
 Summary:	GNUstep Base library package
-Summary(pl.UTF-8):   Podstawowa biblioteka GNUstep
+Summary(pl.UTF-8):	Podstawowa biblioteka GNUstep
 Name:		gnustep-base
 Version:	1.13.0
 Release:	1
@@ -53,7 +53,7 @@ losowych.
 
 %package devel
 Summary:	GNUstep Base headers
-Summary(pl.UTF-8):   Pliki nagłówkowe podstawowej biblioteki GNUstep
+Summary(pl.UTF-8):	Pliki nagłówkowe podstawowej biblioteki GNUstep
 Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
 Requires:	ffcall-devel

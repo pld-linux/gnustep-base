@@ -5,7 +5,8 @@
 Summary:	GNUstep Base library package
 Summary(pl.UTF-8):	Podstawowa biblioteka GNUstep
 Name:		gnustep-base
-Version:	1.14.0
+%define	ver	1.14
+Version:	%{ver}.0
 Release:	0.1
 License:	LGPL/GPL
 Group:		Libraries
@@ -16,12 +17,13 @@ Source2:	%{name}.sysconfig
 Patch0:		%{name}-pass-arguments.patch
 URL:		http://www.gnustep.org/
 %{?with_doc:BuildRequires:	docbook-dtd41-sgml}
-BuildRequires:	ffcall-devel
 BuildRequires:	gcc-objc
 BuildRequires:	gmp-devel
 %{?with_doc:BuildRequires:	gnustep-base-devel >= 1.8.0}
 BuildRequires:	gnustep-make-devel >= 1.11.2
+BuildRequires:	libffi-devel
 BuildRequires:	libxml2-devel >= 2.3.0
+BuildRequires:	libxslt-devel >= 1.1.21
 BuildRequires:	openssl-devel >= 0.9.7d
 BuildRequires:	zlib-devel
 Requires(post):	/sbin/ldconfig
@@ -33,8 +35,6 @@ Requires:	gnustep-make >= 1.11.2
 Requires:	setup >= 2.4.3
 Conflicts:	gnustep-core
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
-
-%define         _prefix         /usr/%{_lib}/GNUstep
 
 %description
 The GNUstep Base Library is a library of general-purpose,
@@ -78,7 +78,7 @@ podstawowej biblioteki GNUstep.
 
 %build
 # don't assume that GNUstep.sh is imported in environment
-export GNUSTEP_MAKEFILES=%{_prefix}/System/Library/Makefiles
+export GNUSTEP_MAKEFILES=%{_datadir}/GNUstep/Makefiles
 export GNUSTEP_FLATTENED=yes
 
 # gnustep can use one of 3 ways of getting argc,argv,env:
@@ -86,7 +86,9 @@ export GNUSTEP_FLATTENED=yes
 # - fake-main hack (main is secretly renamed and wrapped)
 # - pass-arguments (program must call NSProcessInfo initialize)
 %configure \
-	--enable-pass-arguments
+	--enable-pass-arguments \
+	--enable-libffi \
+	--disable-ffcall
 
 # fake GUI_MAKE_LOADED to avoid linking with gnustep-gui
 %{__make} \
@@ -102,34 +104,33 @@ export LD_LIBRARY_PATH=`pwd`/Source/obj
 
 %install
 rm -rf $RPM_BUILD_ROOT
-export GNUSTEP_MAKEFILES=%{_prefix}/System/Library/Makefiles
+install -d $RPM_BUILD_ROOT{%{_initrddir},/etc/sysconfig}
+
+export GNUSTEP_MAKEFILES=%{_datadir}/GNUstep/Makefiles
 export GNUSTEP_FLATTENED=yes
 
 %{__make} install \
-	INSTALL_ROOT_DIR=$RPM_BUILD_ROOT \
-	GNUSTEP_INSTALLATION_DIR=$RPM_BUILD_ROOT%{_prefix}/System
+	DESTDIR=$RPM_BUILD_ROOT
+
+install %{SOURCE1} $RPM_BUILD_ROOT%{_initrddir}/gnustep
+install %{SOURCE2} $RPM_BUILD_ROOT/etc/sysconfig/gnustep
+
+echo 'GMT' > $RPM_BUILD_ROOT%{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/NSTimeZones/localtime
+
+# Fix .so symlink
+(cd $RPM_BUILD_ROOT%{_libdir} ; ln -sf libgnustep-base.so.*.*.* libgnustep-base.so)
 
 %if %{with doc}
 %{__make} -C Documentation install \
-	GNUSTEP_INSTALLATION_DIR=$RPM_BUILD_ROOT%{_prefix}/System
+	DESTDIR=$RPM_BUILD_ROOT
+
 %{__make} -C Documentation/manual install \
-	GNUSTEP_INSTALLATION_DIR=$RPM_BUILD_ROOT%{_prefix}/System
+	DESTDIR=$RPM_BUILD_ROOT
+
 # not (yet?) supported by rpm-compress-doc
-find $RPM_BUILD_ROOT%{_prefix}/System/Library/Documentation \
+find $RPM_BUILD_ROOT%{_datadir}/GNUstep/Documentation \
 	-type f -a ! -name '*.html' -a ! -name '*.gz' -a ! -name '*.jpg' -a ! -name '*.css' | xargs gzip -9nf
 %endif
-
-install -d $RPM_BUILD_ROOT%{_initrddir}
-sed -e "s!@TOOLSARCHDIR@!%{_prefix}/System/Tools/!" %{SOURCE1} \
-	> $RPM_BUILD_ROOT%{_initrddir}/gnustep
-
-install -d $RPM_BUILD_ROOT/etc/sysconfig
-install %{SOURCE2} $RPM_BUILD_ROOT/etc/sysconfig/gnustep
-
-echo 'GMT' > $RPM_BUILD_ROOT%{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/localtime
-
-install -d $RPM_BUILD_ROOT/etc/ld.so.conf.d
-echo '%{_prefix}/System/Library/Libraries' > $RPM_BUILD_ROOT/etc/ld.so.conf.d/%{name}.conf
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -159,91 +160,96 @@ sed -i -e "/^%(echo %{_prefix}/Libraries/ | sed -e 's,/,\\/,g')$/d" /etc/ld.so.c
 %files
 %defattr(644,root,root,755)
 %doc ChangeLog*
-/etc/ld.so.conf.d/%{name}.conf
+%if %{with doc}
+%docdir %{_datadir}/GNUstep/Documentation
+%{_datadir}/GNUstep/Documentation/*.jpg
+%{_datadir}/GNUstep/Documentation/index.html
+%{_datadir}/GNUstep/Documentation/style.css
+%dir %{_datadir}/GNUstep/Documentation/Developer
+%dir %{_datadir}/GNUstep/Documentation/Developer/Base
+%{_datadir}/GNUstep/Documentation/Developer/Base/ReleaseNotes
+%endif
+
 %attr(754,root,root) %{_initrddir}/gnustep
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/gnustep
 
-%dir %{_prefix}/System/Library/Bundles/SSL.bundle
-%attr(755,root,root) %{_prefix}/System/Library/Bundles/SSL.bundle/SSL
-%{_prefix}/System/Library/Bundles/SSL.bundle/Resources
+%dir %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/SSL.bundle
+%attr(755,root,root) %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/SSL.bundle/SSL
+%{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/SSL.bundle/Resources
 
-%docdir %{_prefix}/System/Library/Documentation
-%if %{with doc}
-%{_prefix}/System/Library/Documentation/*.jpg
-%{_prefix}/System/Library/Documentation/index.html
-%{_prefix}/System/Library/Documentation/style.css
-%dir %{_prefix}/System/Library/Documentation/Developer/Base
-%{_prefix}/System/Library/Documentation/Developer/Base/ReleaseNotes
-%endif
-%dir %{_prefix}/System/Library/Documentation/man/man8
-%{_prefix}/System/Library/Documentation/man/man1/*.1*
-%{_prefix}/System/Library/Documentation/man/man8/*.8*
+%dir %{_libdir}/GNUstep/DTDs
+%{_libdir}/GNUstep/DTDs/*.dtd
+%{_libdir}/GNUstep/DTDs/*.rnc
 
-%dir %{_prefix}/System/Library/DTDs
-%{_prefix}/System/Library/DTDs/*.dtd
-%{_prefix}/System/Library/DTDs/*.rnc
+%dir %{_libdir}/GNUstep/Libraries
+%dir %{_libdir}/GNUstep/Libraries/gnustep-base
+%dir %{_libdir}/GNUstep/Libraries/gnustep-base/Versions
+%dir %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}
+%dir %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources
+%dir %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/Languages
+%dir %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/NSTimeZones
 
-%dir %{_prefix}/System/Library/Libraries/Resources/gnustep-base
-%{_prefix}/System/Library/Libraries/Resources/gnustep-base/*.plist
-%{_prefix}/System/Library/Libraries/Resources/gnustep-base/English.lproj
-%lang(eo) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Esperanto.lproj
-%lang(fr) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/French.lproj
-%lang(de) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/German.lproj
-%lang(it) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Italian.lproj
-%lang(ko) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Korean.lproj
-%lang(es) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Spanish.lproj
-%lang(zh_TW) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/TraditionalChinese.lproj
-%dir %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages
-%{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Locale.*
-%lang(nl) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Dutch
-%{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/English
-%lang(eo) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Esperanto
-%lang(fr) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/French
-%lang(de) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/German
-%lang(hu) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Hungarian
-%lang(it) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Italian
-%lang(ko) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Korean
-%lang(ru) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Russian
-%lang(sk) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Slovak
-%lang(es) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Spanish
-%lang(zh_TW) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/TraditionalChinese
-%lang(uk) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/Languages/Ukrainian
-%dir %{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones
-%{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/GNUmakefile
-%{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/GNUstep_zones
-%{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/README
-%{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/abbreviations
-%{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/regions
-%{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/zones
-%{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/*.m
-%{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/*.plist
-%config(noreplace) %verify(not md5 mtime size) %{_prefix}/System/Library/Libraries/Resources/gnustep-base/NSTimeZones/localtime
+%{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/*.plist
+%{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/English.lproj
+%lang(eo) %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/Esperanto.lproj
+%lang(fr) %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/French.lproj
+%lang(de) %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/German.lproj
+%lang(it) %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/Italian.lproj
+%lang(ko) %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/Korean.lproj
+%lang(es) %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/Spanish.lproj
+%lang(zh_TW) %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/TraditionalChinese.lproj
+%{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/Languages/Locale.*
+%{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/Languages/English
+%lang(nl) %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/Languages/Dutch
+%lang(eo) %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/Languages/Esperanto
+%lang(fr) %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/Languages/French
+%lang(de) %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/Languages/German
+%lang(hu) %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/Languages/Hungarian
+%lang(it) %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/Languages/Italian
+%lang(ko) %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/Languages/Korean
+%lang(ru) %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/Languages/Russian
+%lang(sk) %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/Languages/Slovak
+%lang(es) %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/Languages/Spanish
+%lang(zh_TW) %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/Languages/TraditionalChinese
+%lang(uk) %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/Languages/Ukrainian
 
-%attr(755,root,root) %{_prefix}/System/Library/Libraries/libgnustep-base.so.*
+%{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/NSTimeZones/GNUmakefile
+%{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/NSTimeZones/GNUstep_zones
+%{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/NSTimeZones/README
+%{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/NSTimeZones/abbreviations
+%{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/NSTimeZones/regions
+%{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/NSTimeZones/zones
+%{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/NSTimeZones/*.m
+%{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/NSTimeZones/*.plist
+%config(noreplace) %verify(not md5 mtime size) %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/NSTimeZones/localtime
+
+%attr(755,root,root) %{_libdir}/libgnustep-base.so.*.*.*
 
 # is suid necessary here??? it runs as daemon...
-#%attr(4755,root,root) %{_prefix}/System/Tools/gdomap
-%dir %{_prefix}/System/Tools
-%attr(755,root,root) %{_prefix}/System/Tools/*
+#%attr(4755,root,root) %{_bindir}/gdomap
+%attr(755,root,root) %{_bindir}/*
+
+%{_mandir}/man1/*.1*
+%{_mandir}/man8/*.8*
 
 %files devel
 %defattr(644,root,root,755)
 %if %{with doc}
-%docdir %{_prefix}/System/Library/Documentation
-%{_prefix}/System/Library/Documentation/Developer/Base/General
-%{_prefix}/System/Library/Documentation/Developer/Base/ProgrammingManual
-%{_prefix}/System/Library/Documentation/Developer/Base/Reference
-%{_prefix}/System/Library/Documentation/Developer/BaseAdditions
-%{_prefix}/System/Library/Documentation/Developer/CodingStandards
-%{_prefix}/System/Library/Documentation/Developer/Tools
-%{_prefix}/System/Library/Documentation/info/*.info*
+%docdir %{_datadir}/GNUstep/Documentation
+%{_datadir}/GNUstep/Documentation/Developer/Base/General
+%{_datadir}/GNUstep/Documentation/Developer/Base/ProgrammingManual
+%{_datadir}/GNUstep/Documentation/Developer/Base/Reference
+%{_datadir}/GNUstep/Documentation/Developer/BaseAdditions
+%{_datadir}/GNUstep/Documentation/Developer/CodingStandards
+%{_datadir}/GNUstep/Documentation/Developer/Tools
+%{_infodir}/*.info*
 %endif
 
-%{_prefix}/System/Library/Headers/Foundation
-%{_prefix}/System/Library/Headers/GNUstepBase
-%{_prefix}/System/Library/Headers/gnustep
-%{_prefix}/System/Library/Headers/*.h
+%{_includedir}/Foundation
+%{_includedir}/GNUstepBase
+%{_includedir}/gnustep
 
-%attr(755,root,root) %{_prefix}/System/Library/Libraries/libgnustep-base.so
-%dir %{_prefix}/System/Library/Makefiles/Additional
-%{_prefix}/System/Library/Makefiles/Additional/base.make
+%attr(755,root,root) %{_libdir}/libgnustep-base.so
+
+%dir %{_datadir}/GNUstep/Makefiles/Additional
+%{_datadir}/GNUstep/Makefiles/Additional/base.make

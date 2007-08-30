@@ -16,7 +16,7 @@ case "$1" in
   start)
 	if [ ! -f /var/lock/subsys/gnustep ]; then
 		msg_starting "gnustep services"
-		daemon @TOOLSARCHDIR@/gdomap $GDOMAP_OPTIONS
+		daemon gdomap $GDOMAP_OPTIONS
 		RETVAL=$?
 		[ $RETVAL -eq 0 ] && touch /var/lock/subsys/gnustep
 	else

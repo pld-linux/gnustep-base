@@ -7,7 +7,7 @@ Summary(pl.UTF-8):	Podstawowa biblioteka GNUstep
 Name:		gnustep-base
 %define	ver	1.14
 Version:	%{ver}.0
-Release:	1
+Release:	2
 License:	LGPL/GPL
 Group:		Libraries
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
@@ -165,6 +165,7 @@ sed -i -e "/^%(echo %{_prefix}/Libraries/ | sed -e 's,/,\\/,g')$/d" /etc/ld.so.c
 %{_datadir}/GNUstep/Documentation/*.jpg
 %{_datadir}/GNUstep/Documentation/index.html
 %{_datadir}/GNUstep/Documentation/style.css
+%dir %{_datadir}/GNUstep/Documentation
 %dir %{_datadir}/GNUstep/Documentation/Developer
 %dir %{_datadir}/GNUstep/Documentation/Developer/Base
 %{_datadir}/GNUstep/Documentation/Developer/Base/ReleaseNotes

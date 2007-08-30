@@ -12,8 +12,7 @@
 # Get service config
 [ -f /etc/sysconfig/gnustep ] && . /etc/sysconfig/gnustep
 
-case "$1" in
-  start)
+start() {
 	if [ ! -f /var/lock/subsys/gnustep ]; then
 		msg_starting "gnustep services"
 		daemon gdomap $GDOMAP_OPTIONS
@@ -23,8 +22,9 @@ case "$1" in
 		msg_already_running "gnustep services"
 		exit 1
 	fi
-	;;
-  stop)
+}
+
+stop() {
 	if [ -f /var/lock/subsys/gnustep ]; then
 		msg_stopping "gnustep services"
 		killproc gdomap
@@ -34,18 +34,26 @@ case "$1" in
 		msg_not_running "gnustep services"
 		exit 1
 	fi
+}
+
+case "$1" in
+  start)
+	start
 	;;
-   status)
+  stop)
+	stop
+	;;
+  status)
 	status gdomap
 	RETVAL=$?
-        ;;
-   restart|reload)
-	$0 stop
-	$0 start
 	;;
-    *)
-        msg_usage "$0 {start|stop|status|restart|reload}"
-        exit 1
+  restart|reload)
+	stop
+	start
+	;;
+*)
+	msg_usage "$0 {start|stop|status|restart|reload}"
+	exit 1
 esac
 
 exit $RETVAL

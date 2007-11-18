@@ -7,7 +7,7 @@ Summary(pl.UTF-8):	Podstawowa biblioteka GNUstep
 Name:		gnustep-base
 %define ver 1.15
 Version:	%{ver}.1
-Release:	1
+Release:	2
 License:	LGPL/GPL
 Group:		Libraries
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz

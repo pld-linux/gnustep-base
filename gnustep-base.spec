@@ -1,17 +1,17 @@
 #
 # Conditional build:
-%bcond_without	doc	# don't generate documentation (bootstrap build w/o gnustep-base)
+%bcond_without doc     # don't generate documentation (bootstrap build w/o gnustep-base)
 #
 Summary:	GNUstep Base library package
 Summary(pl.UTF-8):	Podstawowa biblioteka GNUstep
 Name:		gnustep-base
-%define	ver	1.14
-Version:	%{ver}.0
-Release:	2
+%define ver 1.15
+Version:	%{ver}.1
+Release:	1
 License:	LGPL/GPL
 Group:		Libraries
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
-# Source0-md5:	10a24a5568c5505c4b7480f170733d4d
+# Source0-md5:	b7a02fac57e61b0d697837cba8542f6a
 Source1:	%{name}.init
 Source2:	%{name}.sysconfig
 Patch0:		%{name}-pass-arguments.patch
@@ -19,7 +19,6 @@ URL:		http://www.gnustep.org/
 %{?with_doc:BuildRequires:	docbook-dtd41-sgml}
 BuildRequires:	gcc-objc
 BuildRequires:	gmp-devel
-%{?with_doc:BuildRequires:	gnustep-base-devel >= 1.8.0}
 BuildRequires:	gnustep-make-devel >= 1.11.2
 BuildRequires:	libffi-devel
 BuildRequires:	libxml2-devel >= 2.3.0
@@ -93,13 +92,16 @@ export GNUSTEP_FLATTENED=yes
 # fake GUI_MAKE_LOADED to avoid linking with gnustep-gui
 %{__make} \
 	GUI_MAKE_LOADED=yes \
+	GNUSTEP_MAKEFILES=`gnustep-config --variable=GNUSTEP_MAKEFILES` \
 	messages=yes
 
 %if %{with doc}
 export LD_LIBRARY_PATH=`pwd`/Source/obj
 # requires already installed gnustep-base
-%{__make} -C Documentation
-%{__make} -C Documentation/manual
+%{__make} -C Documentation \
+	GNUSTEP_MAKEFILES=`gnustep-config --variable=GNUSTEP_MAKEFILES`
+%{__make} -C Documentation/manual \
+	GNUSTEP_MAKEFILES=`gnustep-config --variable=GNUSTEP_MAKEFILES`
 %endif
 
 %install
@@ -235,6 +237,8 @@ sed -i -e "/^%(echo %{_prefix}/Libraries/ | sed -e 's,/,\\/,g')$/d" /etc/ld.so.c
 
 %files devel
 %defattr(644,root,root,755)
+%dir %{_datadir}/GNUstep/Makefiles/Additional
+%{_datadir}/GNUstep/Makefiles/Additional/base.make
 %if %{with doc}
 %docdir %{_datadir}/GNUstep/Documentation
 %{_datadir}/GNUstep/Documentation/Developer/Base/General

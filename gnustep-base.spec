@@ -97,8 +97,12 @@ export GNUSTEP_FLATTENED=yes
 
 %if %{with doc}
 export LD_LIBRARY_PATH=`pwd`/Source/obj
+# with __make -j2:
+# 	mkdir: cannot create directory `../Documentation/BaseTools': File exists
+#	make[1]: *** [../Documentation/BaseTools] Error 1
+#	make[1]: *** Waiting for unfinished jobs....
 # requires already installed gnustep-base
-%{__make} -C Documentation \
+%{__make} -j1 -C Documentation \
 	GNUSTEP_MAKEFILES=`gnustep-config --variable=GNUSTEP_MAKEFILES`
 %{__make} -C Documentation/manual \
 	GNUSTEP_MAKEFILES=`gnustep-config --variable=GNUSTEP_MAKEFILES`

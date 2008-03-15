@@ -6,12 +6,12 @@ Summary:	GNUstep Base library package
 Summary(pl.UTF-8):	Podstawowa biblioteka GNUstep
 Name:		gnustep-base
 %define ver 1.15
-Version:	%{ver}.1
-Release:	3
+Version:	%{ver}.3
+Release:	1
 License:	LGPL/GPL
 Group:		Libraries
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
-# Source0-md5:	b7a02fac57e61b0d697837cba8542f6a
+# Source0-md5:	67449dd0d8c4ef096fde46bf65503982
 Source1:	%{name}.init
 Source2:	%{name}.sysconfig
 Patch0:		%{name}-pass-arguments.patch

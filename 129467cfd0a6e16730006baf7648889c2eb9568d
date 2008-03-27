@@ -1,0 +1,3 @@
+- Prereq: /sbin/chkconfig
+- pl translations
+  NOTE: %install and %files should be rewritten

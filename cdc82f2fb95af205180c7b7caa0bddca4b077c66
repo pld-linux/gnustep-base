@@ -1,0 +1,2 @@
+- Headers/%{libcombo}/%{gscpu}{,%{gsos}} dirs belong to gnustep-make
+- man1 dir belongs to gnustep-make now

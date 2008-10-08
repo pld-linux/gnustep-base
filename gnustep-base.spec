@@ -6,7 +6,7 @@ Summary:	GNUstep Base library package
 Summary(pl.UTF-8):	Podstawowa biblioteka GNUstep
 Name:		gnustep-base
 Version:	%{ver}.3
-Release:	8
+Release:	9
 License:	LGPL/GPL
 Group:		Libraries
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
@@ -14,6 +14,7 @@ Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
 Source1:	%{name}.init
 Source2:	%{name}.sysconfig
 Patch0:		%{name}-pass-arguments.patch
+Patch1:		%{name}-ac.patch
 URL:		http://www.gnustep.org/
 %{?with_doc:BuildRequires:	docbook-dtd41-sgml}
 BuildRequires:	gcc-objc
@@ -23,6 +24,7 @@ BuildRequires:	libffi-devel
 BuildRequires:	libxml2-devel >= 2.3.0
 BuildRequires:	libxslt-devel >= 1.1.21
 BuildRequires:	openssl-devel >= 0.9.7d
+BuildRequires:	texinfo-texi2dvi
 BuildRequires:	zlib-devel
 Requires(post):	/sbin/ldconfig
 Requires(post,preun):	/sbin/chkconfig
@@ -73,8 +75,11 @@ podstawowej biblioteki GNUstep.
 %prep
 %setup -q
 %patch0 -p1
+%patch1 -p1
 
 %build
+%{__autoconf} -Iconfig
+
 # don't assume that GNUstep.sh is imported in environment
 export GNUSTEP_MAKEFILES=%{_datadir}/GNUstep/Makefiles
 export GNUSTEP_FLATTENED=yes
@@ -89,7 +94,7 @@ export GNUSTEP_FLATTENED=yes
 	--disable-ffcall
 
 # fake GUI_MAKE_LOADED to avoid linking with gnustep-gui
-%{__make} \
+%{__make} -j1 \
 	GUI_MAKE_LOADED=yes \
 	GNUSTEP_MAKEFILES=`gnustep-config --variable=GNUSTEP_MAKEFILES` \
 	messages=yes
@@ -103,7 +108,7 @@ export LD_LIBRARY_PATH=`pwd`/Source/obj
 # requires already installed gnustep-base
 %{__make} -j1 -C Documentation \
 	GNUSTEP_MAKEFILES=`gnustep-config --variable=GNUSTEP_MAKEFILES`
-%{__make} -C Documentation/manual \
+%{__make} -j1 -C Documentation/manual \
 	GNUSTEP_MAKEFILES=`gnustep-config --variable=GNUSTEP_MAKEFILES`
 %endif
 
@@ -114,7 +119,7 @@ install -d $RPM_BUILD_ROOT{%{_initrddir},/etc/sysconfig}
 export GNUSTEP_MAKEFILES=%{_datadir}/GNUstep/Makefiles
 export GNUSTEP_FLATTENED=yes
 
-%{__make} install \
+%{__make} -j1 install \
 	DESTDIR=$RPM_BUILD_ROOT
 
 install %{SOURCE1} $RPM_BUILD_ROOT%{_initrddir}/gnustep
@@ -126,10 +131,10 @@ echo 'GMT' > $RPM_BUILD_ROOT%{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%
 (cd $RPM_BUILD_ROOT%{_libdir} ; ln -sf libgnustep-base.so.*.*.* libgnustep-base.so)
 
 %if %{with doc}
-%{__make} -C Documentation install \
+%{__make} -j1 -C Documentation install \
 	DESTDIR=$RPM_BUILD_ROOT
 
-%{__make} -C Documentation/manual install \
+%{__make} -j1 -C Documentation/manual install \
 	DESTDIR=$RPM_BUILD_ROOT
 
 # not (yet?) supported by rpm-compress-doc

@@ -1,16 +1,16 @@
 # Conditional build:
 %bcond_without doc     # don't generate documentation (bootstrap build w/o gnustep-base)
 #
-%define		 ver 1.15
+%define		 ver 1.16
 Summary:	GNUstep Base library package
 Summary(pl.UTF-8):	Podstawowa biblioteka GNUstep
 Name:		gnustep-base
-Version:	%{ver}.3
-Release:	9
+Version:	%{ver}.4
+Release:	1
 License:	LGPL/GPL
 Group:		Libraries
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
-# Source0-md5:	67449dd0d8c4ef096fde46bf65503982
+# Source0-md5:	ba76a3a68fcb8849c19ef3b05daa3e59
 Source1:	%{name}.init
 Source2:	%{name}.sysconfig
 Patch0:		%{name}-pass-arguments.patch

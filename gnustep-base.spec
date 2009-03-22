@@ -114,7 +114,7 @@ export LD_LIBRARY_PATH=`pwd`/Source/obj
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{%{_initrddir},/etc/sysconfig}
+install -d $RPM_BUILD_ROOT{/etc/rc.d/init.d,/etc/sysconfig}
 
 export GNUSTEP_MAKEFILES=%{_datadir}/GNUstep/Makefiles
 export GNUSTEP_FLATTENED=yes
@@ -122,7 +122,7 @@ export GNUSTEP_FLATTENED=yes
 %{__make} -j1 install \
 	DESTDIR=$RPM_BUILD_ROOT
 
-install %{SOURCE1} $RPM_BUILD_ROOT%{_initrddir}/gnustep
+install %{SOURCE1} $RPM_BUILD_ROOT/etc/rc.d/init.d/gnustep
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/sysconfig/gnustep
 
 echo 'GMT' > $RPM_BUILD_ROOT%{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/NSTimeZones/localtime
@@ -181,7 +181,7 @@ sed -i -e "/^%(echo %{_prefix}/Libraries/ | sed -e 's,/,\\/,g')$/d" /etc/ld.so.c
 %{_datadir}/GNUstep/Documentation/Developer/Base/ReleaseNotes
 %endif
 
-%attr(754,root,root) %{_initrddir}/gnustep
+%attr(754,root,root) /etc/rc.d/init.d/gnustep
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/gnustep
 
 %dir %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/SSL.bundle

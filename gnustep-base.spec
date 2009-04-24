@@ -1,16 +1,16 @@
 # Conditional build:
 %bcond_without doc     # don't generate documentation (bootstrap build w/o gnustep-base)
 #
-%define		 ver 1.16
+%define		 ver 1.18
 Summary:	GNUstep Base library package
 Summary(pl.UTF-8):	Podstawowa biblioteka GNUstep
 Name:		gnustep-base
-Version:	%{ver}.4
-Release:	3
+Version:	%{ver}.0
+Release:	1
 License:	LGPL/GPL
 Group:		Libraries
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
-# Source0-md5:	ba76a3a68fcb8849c19ef3b05daa3e59
+# Source0-md5:	880491e0fc64ab3507887f43faa67572
 Source1:	%{name}.init
 Source2:	%{name}.sysconfig
 Patch0:		%{name}-pass-arguments.patch
@@ -88,6 +88,7 @@ export GNUSTEP_FLATTENED=yes
 # - /proc (default on Linux) - gnustep programs won't run in procless system
 # - fake-main hack (main is secretly renamed and wrapped)
 # - pass-arguments (program must call NSProcessInfo initialize)
+GNUSTEP_INSTALLATION_DOMAIN=SYSTEM \
 %configure \
 	--enable-pass-arguments \
 	--enable-libffi \
@@ -95,6 +96,7 @@ export GNUSTEP_FLATTENED=yes
 
 # fake GUI_MAKE_LOADED to avoid linking with gnustep-gui
 %{__make} -j1 \
+	GNUSTEP_INSTALLATION_DOMAIN=SYSTEM \
 	GUI_MAKE_LOADED=yes \
 	GNUSTEP_MAKEFILES=`gnustep-config --variable=GNUSTEP_MAKEFILES` \
 	messages=yes
@@ -107,8 +109,10 @@ export LD_LIBRARY_PATH=`pwd`/Source/obj
 #	make[1]: *** Waiting for unfinished jobs....
 # requires already installed gnustep-base
 %{__make} -j1 -C Documentation \
+	GNUSTEP_INSTALLATION_DOMAIN=SYSTEM \
 	GNUSTEP_MAKEFILES=`gnustep-config --variable=GNUSTEP_MAKEFILES`
 %{__make} -j1 -C Documentation/manual \
+	GNUSTEP_INSTALLATION_DOMAIN=SYSTEM \
 	GNUSTEP_MAKEFILES=`gnustep-config --variable=GNUSTEP_MAKEFILES`
 %endif
 
@@ -120,6 +124,7 @@ export GNUSTEP_MAKEFILES=%{_datadir}/GNUstep/Makefiles
 export GNUSTEP_FLATTENED=yes
 
 %{__make} -j1 install \
+	GNUSTEP_INSTALLATION_DOMAIN=SYSTEM \
 	DESTDIR=$RPM_BUILD_ROOT
 
 install %{SOURCE1} $RPM_BUILD_ROOT/etc/rc.d/init.d/gnustep
@@ -132,9 +137,11 @@ echo 'GMT' > $RPM_BUILD_ROOT%{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%
 
 %if %{with doc}
 %{__make} -j1 -C Documentation install \
+	GNUSTEP_INSTALLATION_DOMAIN=SYSTEM \
 	DESTDIR=$RPM_BUILD_ROOT
 
 %{__make} -j1 -C Documentation/manual install \
+	GNUSTEP_INSTALLATION_DOMAIN=SYSTEM \
 	DESTDIR=$RPM_BUILD_ROOT
 
 # not (yet?) supported by rpm-compress-doc

@@ -1,7 +1,7 @@
 # Conditional build:
 %bcond_without doc     # don't generate documentation (bootstrap build w/o gnustep-base)
 #
-%define		 ver 1.18
+%define		 ver 1.19
 Summary:	GNUstep Base library package
 Summary(pl.UTF-8):	Podstawowa biblioteka GNUstep
 Name:		gnustep-base
@@ -10,7 +10,7 @@ Release:	1
 License:	LGPL/GPL
 Group:		Libraries
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
-# Source0-md5:	880491e0fc64ab3507887f43faa67572
+# Source0-md5:	db8960840617c2e8701be65e40bfc67c
 Source1:	%{name}.init
 Source2:	%{name}.sysconfig
 Patch0:		%{name}-pass-arguments.patch
@@ -242,6 +242,7 @@ sed -i -e "/^%(echo %{_prefix}/Libraries/ | sed -e 's,/,\\/,g')$/d" /etc/ld.so.c
 %config(noreplace) %verify(not md5 mtime size) %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/NSTimeZones/localtime
 
 %attr(755,root,root) %{_libdir}/libgnustep-base.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libgnustep-base.so.%{ver}
 
 # is suid necessary here??? it runs as daemon...
 #%attr(4755,root,root) %{_bindir}/gdomap

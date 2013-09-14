@@ -1,37 +1,50 @@
+# TODO: use system ca-certificates
+# - libdispatch
 #
 # Conditional build:
-%bcond_without doc     # don't generate documentation (bootstrap build w/o gnustep-base)
+%bcond_without	doc     # don't generate documentation (bootstrap build w/o gnustep-base)
 #
-%define		 ver 1.19
+# gc is used for gnugc-*-* libcombo
+%if "%(gnustep-config --variable=LIBRARY_COMBO | cut -d- -f1)" == "gnugc"
+%define	with_gc	1
+%endif
 Summary:	GNUstep Base library package
 Summary(pl.UTF-8):	Podstawowa biblioteka GNUstep
 Name:		gnustep-base
-Version:	%{ver}.1
-Release:	6
-License:	LGPL/GPL
+%define	ver	1.24
+Version:	%{ver}.5
+Release:	1
+License:	LGPL v2+ (library), GPL v3+ (applications)
 Group:		Libraries
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
-# Source0-md5:	100e433a7e0624a6e4e5727b87e48c82
+# Source0-md5:	df4e9786c6845d091a677b55d4e2c7c3
 Source1:	%{name}.init
 Source2:	%{name}.sysconfig
 Patch0:		%{name}-pass-arguments.patch
 Patch1:		%{name}-ac.patch
+Patch2:		%{name}-link.patch
 URL:		http://www.gnustep.org/
+BuildRequires:	autoconf >= 2.60
+BuildRequires:	avahi-devel
 %{?with_doc:BuildRequires:	docbook-dtd41-sgml}
+%{?with_gc:BuildRequires:	gc-devel}
 BuildRequires:	gcc-objc
 BuildRequires:	gmp-devel
-BuildRequires:	gnustep-make-devel >= 1.11.2
-BuildRequires:	libffi-devel
+BuildRequires:	gnustep-make-devel >= 1.13.1
+BuildRequires:	gnutls-devel >= 1.4.0
+BuildRequires:	libffi-devel >= 3.0.9
+BuildRequires:	libgcrypt-devel
+BuildRequires:	libicu-devel >= 4.0
 BuildRequires:	libxml2-devel >= 2.3.0
 BuildRequires:	libxslt-devel >= 1.1.21
-BuildRequires:	openssl-devel >= 0.9.7d
-BuildRequires:	texinfo-texi2dvi
+BuildRequires:	pkgconfig
+%{?with_doc:BuildRequires:	texinfo-texi2dvi}
 BuildRequires:	zlib-devel
 Requires(post):	/sbin/ldconfig
 Requires(post,preun):	/sbin/chkconfig
 Requires(triggerpostun):	sed >= 4.0
 Requires:	glibc >= 6:2.3.5-7.6
-Requires:	gnustep-make >= 1.11.2
+Requires:	gnustep-make >= 1.13.1
 # with gdomap in /etc/services
 Requires:	setup >= 2.4.3
 Conflicts:	gnustep-core
@@ -57,13 +70,12 @@ Summary:	GNUstep Base headers
 Summary(pl.UTF-8):	Pliki nagłówkowe podstawowej biblioteki GNUstep
 Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
-Requires:	ffcall-devel
 Requires:	gcc-objc
 Requires:	gmp-devel
-Requires:	gnustep-make-devel >= 1.11.2
+Requires:	gnustep-make-devel >= 1.13.1
+Requires:	libffi-devel >= 3.0.9
 Requires:	libxml2-devel
 Requires:	zlib-devel
-Conflicts:	gnustep-core
 
 %description devel
 Header files required to build applications against the GNUstep Base
@@ -77,6 +89,7 @@ podstawowej biblioteki GNUstep.
 %setup -q
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
 
 %build
 %{__autoconf} -Iconfig
@@ -91,9 +104,10 @@ export GNUSTEP_FLATTENED=yes
 # - pass-arguments (program must call NSProcessInfo initialize)
 GNUSTEP_INSTALLATION_DOMAIN=SYSTEM \
 %configure \
-	--enable-pass-arguments \
+	--disable-ffcall \
 	--enable-libffi \
-	--disable-ffcall
+	--enable-pass-arguments \
+	--with-zeroconf=avahi
 
 # fake GUI_MAKE_LOADED to avoid linking with gnustep-gui
 %{__make} -j1 \
@@ -103,12 +117,9 @@ GNUSTEP_INSTALLATION_DOMAIN=SYSTEM \
 	messages=yes
 
 %if %{with doc}
+# needs already built gnustep-base
 export LD_LIBRARY_PATH=`pwd`/Source/obj
-# with __make -j2:
-# 	mkdir: cannot create directory `../Documentation/BaseTools': File exists
-#	make[1]: *** [../Documentation/BaseTools] Error 1
-#	make[1]: *** Waiting for unfinished jobs....
-# requires already installed gnustep-base
+# build seems racy, use -j1
 %{__make} -j1 -C Documentation \
 	GNUSTEP_INSTALLATION_DOMAIN=SYSTEM \
 	GNUSTEP_MAKEFILES=`gnustep-config --variable=GNUSTEP_MAKEFILES`
@@ -133,9 +144,6 @@ install %{SOURCE2} $RPM_BUILD_ROOT/etc/sysconfig/gnustep
 
 echo 'GMT' > $RPM_BUILD_ROOT%{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/NSTimeZones/localtime
 
-# Fix .so symlink
-(cd $RPM_BUILD_ROOT%{_libdir} ; ln -sf libgnustep-base.so.*.*.* libgnustep-base.so)
-
 %if %{with doc}
 %{__make} -j1 -C Documentation install \
 	GNUSTEP_INSTALLATION_DOMAIN=SYSTEM \
@@ -144,6 +152,8 @@ echo 'GMT' > $RPM_BUILD_ROOT%{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%
 %{__make} -j1 -C Documentation/manual install \
 	GNUSTEP_INSTALLATION_DOMAIN=SYSTEM \
 	DESTDIR=$RPM_BUILD_ROOT
+
+%{__mv} $RPM_BUILD_ROOT%{_infodir}/{manual,gnustep-base-manual}.info
 
 # not (yet?) supported by rpm-compress-doc
 find $RPM_BUILD_ROOT%{_datadir}/GNUstep/Documentation \
@@ -178,23 +188,42 @@ sed -i -e "/^%(echo %{_prefix}/Libraries/ | sed -e 's,/,\\/,g')$/d" /etc/ld.so.c
 %files
 %defattr(644,root,root,755)
 %doc ChangeLog*
-%if %{with doc}
-%docdir %{_datadir}/GNUstep/Documentation
-%{_datadir}/GNUstep/Documentation/*.jpg
-%{_datadir}/GNUstep/Documentation/index.html
-%{_datadir}/GNUstep/Documentation/style.css
-%dir %{_datadir}/GNUstep/Documentation
-%dir %{_datadir}/GNUstep/Documentation/Developer
-%dir %{_datadir}/GNUstep/Documentation/Developer/Base
-%{_datadir}/GNUstep/Documentation/Developer/Base/ReleaseNotes
-%endif
+
+%attr(755,root,root) %{_bindir}/HTMLLinker
+%attr(755,root,root) %{_bindir}/autogsdoc
+%attr(755,root,root) %{_bindir}/cvtenc
+%attr(755,root,root) %{_bindir}/defaults
+%attr(755,root,root) %{_bindir}/gdnc
+%attr(755,root,root) %{_bindir}/gdomap
+%attr(755,root,root) %{_bindir}/gspath
+%attr(755,root,root) %{_bindir}/make_strings
+%attr(755,root,root) %{_bindir}/pl
+%attr(755,root,root) %{_bindir}/pl2link
+%attr(755,root,root) %{_bindir}/pldes
+%attr(755,root,root) %{_bindir}/plget
+%attr(755,root,root) %{_bindir}/plmerge
+%attr(755,root,root) %{_bindir}/plparse
+%attr(755,root,root) %{_bindir}/plser
+%attr(755,root,root) %{_bindir}/sfparse
+%attr(755,root,root) %{_bindir}/xmlparse
+# is suid necessary here??? it runs as daemon...
+#%attr(4755,root,root) %{_bindir}/gdomap
+
+%attr(755,root,root) %{_libdir}/libgnustep-base.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libgnustep-base.so.%{ver}
+
+%{_mandir}/man1/autogsdoc.1*
+%{_mandir}/man1/cvtenc.1*
+%{_mandir}/man1/defaults.1*
+%{_mandir}/man1/gdnc.1*
+%{_mandir}/man1/gspath.1*
+%{_mandir}/man1/pldes.1*
+%{_mandir}/man1/sfparse.1*
+%{_mandir}/man1/xmlparse.1*
+%{_mandir}/man8/gdomap.8*
 
 %attr(754,root,root) /etc/rc.d/init.d/gnustep
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/gnustep
-
-%dir %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/SSL.bundle
-%attr(755,root,root) %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/SSL.bundle/SSL
-%{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/SSL.bundle/Resources
 
 %dir %{_libdir}/GNUstep/DTDs
 %{_libdir}/GNUstep/DTDs/*.dtd
@@ -205,6 +234,8 @@ sed -i -e "/^%(echo %{_prefix}/Libraries/ | sed -e 's,/,\\/,g')$/d" /etc/ld.so.c
 %dir %{_libdir}/GNUstep/Libraries/gnustep-base/Versions
 %dir %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}
 %dir %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources
+%dir %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/GSTLS
+%{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/GSTLS/ca-certificates.crt
 %dir %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/Languages
 %dir %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/NSTimeZones
 
@@ -240,22 +271,25 @@ sed -i -e "/^%(echo %{_prefix}/Libraries/ | sed -e 's,/,\\/,g')$/d" /etc/ld.so.c
 %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/NSTimeZones/zones
 %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/NSTimeZones/*.m
 %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/NSTimeZones/*.plist
+# FIXME: FHS
 %config(noreplace) %verify(not md5 mtime size) %{_libdir}/GNUstep/Libraries/gnustep-base/Versions/%{ver}/Resources/NSTimeZones/localtime
 
-%attr(755,root,root) %{_libdir}/libgnustep-base.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libgnustep-base.so.%{ver}
-
-# is suid necessary here??? it runs as daemon...
-#%attr(4755,root,root) %{_bindir}/gdomap
-%attr(755,root,root) %{_bindir}/*
-
-%{_mandir}/man1/*.1*
-%{_mandir}/man8/*.8*
+%if %{with doc}
+%docdir %{_datadir}/GNUstep/Documentation
+%{_datadir}/GNUstep/Documentation/*.jpg
+%{_datadir}/GNUstep/Documentation/index.html
+%{_datadir}/GNUstep/Documentation/style.css
+%dir %{_datadir}/GNUstep/Documentation/Developer/Base
+%{_datadir}/GNUstep/Documentation/Developer/Base/ReleaseNotes
+%endif
 
 %files devel
 %defattr(644,root,root,755)
-%dir %{_datadir}/GNUstep/Makefiles/Additional
-%{_datadir}/GNUstep/Makefiles/Additional/base.make
+%attr(755,root,root) %{_libdir}/libgnustep-base.so
+%{_includedir}/Foundation
+%{_includedir}/GNUstepBase
+%{_includedir}/gnustep
+
 %if %{with doc}
 %docdir %{_datadir}/GNUstep/Documentation
 %{_datadir}/GNUstep/Documentation/Developer/Base/General
@@ -264,14 +298,8 @@ sed -i -e "/^%(echo %{_prefix}/Libraries/ | sed -e 's,/,\\/,g')$/d" /etc/ld.so.c
 %{_datadir}/GNUstep/Documentation/Developer/BaseAdditions
 %{_datadir}/GNUstep/Documentation/Developer/CodingStandards
 %{_datadir}/GNUstep/Documentation/Developer/Tools
-%{_infodir}/*.info*
+%{_infodir}/gnustep-base-manual.info*
 %endif
-
-%{_includedir}/Foundation
-%{_includedir}/GNUstepBase
-%{_includedir}/gnustep
-
-%attr(755,root,root) %{_libdir}/libgnustep-base.so
 
 %dir %{_datadir}/GNUstep/Makefiles/Additional
 %{_datadir}/GNUstep/Makefiles/Additional/base.make

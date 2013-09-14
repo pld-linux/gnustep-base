@@ -1,11 +1,11 @@
---- gnustep-base-1.11.1/Source/NSProcessInfo.m.orig	2005-08-15 06:00:22.000000000 +0200
-+++ gnustep-base-1.11.1/Source/NSProcessInfo.m	2005-10-22 13:36:36.492131256 +0200
-@@ -343,7 +343,7 @@
-   IF_NO_GC(RELEASE(arp));
+--- gnustep-base-1.24.5/Source/NSProcessInfo.m.orig	2013-09-13 18:37:12.234146907 +0200
++++ gnustep-base-1.24.5/Source/NSProcessInfo.m	2013-09-13 18:47:08.217455182 +0200
+@@ -457,7 +457,7 @@
+   [arp drain];
  }
  
--#if !GS_FAKE_MAIN && ((defined(HAVE_PROCFS)  || defined(HAVE_KVM_ENV) || defined(HAVE_PROCFS_PSINFO)) && (defined(HAVE_LOAD_METHOD)))
-+#if !GS_FAKE_MAIN && !GS_PASS_ARGUMENTS && ((defined(HAVE_PROCFS)  || defined(HAVE_KVM_ENV) || defined(HAVE_PROCFS_PSINFO)) && (defined(HAVE_LOAD_METHOD)))
+-#if !GS_FAKE_MAIN && ((defined(HAVE_PROCFS)  || defined(HAVE_KVM_ENV) || defined(HAVE_PROCFS_PSINFO) || defined(__APPLE__)) && (defined(HAVE_LOAD_METHOD)))
++#if !GS_FAKE_MAIN && !GS_PASS_ARGUMENTS && ((defined(HAVE_PROCFS)  || defined(HAVE_KVM_ENV) || defined(HAVE_PROCFS_PSINFO) || defined(__APPLE__)) && (defined(HAVE_LOAD_METHOD)))
  /*
   * We have to save program arguments and environment before main () is
   * executed, because main () could modify their values before we get a

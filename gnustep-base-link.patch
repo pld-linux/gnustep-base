@@ -1,0 +1,11 @@
+--- gnustep-base-1.24.5/configure.ac.orig	2013-07-15 07:24:27.000000000 +0200
++++ gnustep-base-1.24.5/configure.ac	2013-09-14 10:54:56.415018340 +0200
+@@ -2349,7 +2349,7 @@
+ # These used by GSFileHandle.m and distributed objects
+ # On some systems we need -lnsl ... so check for that first.
+ #--------------------------------------------------------------------
+-AC_CHECK_LIB(nsl, inet_ntop)
++AC_SEARCH_LIBS(inet_ntop, nsl)
+ AC_CHECK_FUNCS(gethostbyaddr_r inet_aton inet_pton inet_ntop sigaction)
+ USE_ZLIB=0
+ AC_CHECK_HEADERS(zlib.h)

@@ -12,12 +12,12 @@ Summary:	GNUstep Base library package
 Summary(pl.UTF-8):	Podstawowa biblioteka GNUstep
 Name:		gnustep-base
 %define	ver	1.24
-Version:	%{ver}.5
+Version:	%{ver}.6
 Release:	1
 License:	LGPL v2+ (library), GPL v3+ (applications)
 Group:		Libraries
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz
-# Source0-md5:	df4e9786c6845d091a677b55d4e2c7c3
+# Source0-md5:	02e45ae9a7e5e75bf32cc1a6e8381bc1
 Source1:	%{name}.init
 Source2:	%{name}.sysconfig
 Patch0:		%{name}-pass-arguments.patch
@@ -49,6 +49,9 @@ Requires:	gnustep-make >= 1.13.1
 Requires:	setup >= 2.4.3
 Conflicts:	gnustep-core
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
+
+# libgnustep-base refers to some non-function ffi_* symbols
+%define		skip_post_check_so	libgnustep-base.so.*
 
 %description
 The GNUstep Base Library is a library of general-purpose,

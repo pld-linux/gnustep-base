@@ -13,7 +13,7 @@ Summary(pl.UTF-8):	Podstawowa biblioteka GNUstep
 Name:		gnustep-base
 %define	ver	1.24
 Version:	%{ver}.6
-Release:	7
+Release:	8
 License:	LGPL v2+ (library), GPL v3+ (applications)
 Group:		Libraries
 Source0:	ftp://ftp.gnustep.org/pub/gnustep/core/%{name}-%{version}.tar.gz

@@ -42,9 +42,9 @@ BuildRequires:	pkgconfig
 BuildRequires:	zlib-devel
 Requires(post):	/sbin/ldconfig
 Requires(post,preun):	/sbin/chkconfig
-Requires(triggerpostun):	sed >= 4.0
 Requires:	glibc >= 6:2.3.5-7.6
 Requires:	gnustep-make >= 1.13.1
+Requires:	sed >= 4.0
 # with gdomap in /etc/services
 Requires:	setup >= 2.4.3
 Conflicts:	gnustep-core

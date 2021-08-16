@@ -1,0 +1,368 @@
+diff --color -ur gnustep-base-1.24.6.orig/Source/GSICUString.m gnustep-base-1.24.6/Source/GSICUString.m
+--- gnustep-base-1.24.6.orig/Source/GSICUString.m	2011-02-11 15:31:25.000000000 +0100
++++ gnustep-base-1.24.6/Source/GSICUString.m	2021-08-16 20:07:38.843905056 +0200
+@@ -57,7 +57,7 @@
+ 
+   if (nativeIndex >= length)
+     {
+-      return FALSE;
++      return 0;
+     }
+ 
+   /* Special case if the chunk already contains this index
+@@ -66,10 +66,10 @@
+     && nativeIndex < (ut->chunkNativeStart + ut->chunkLength))
+     {
+       ut->chunkOffset = nativeIndex - ut->chunkNativeStart;
+-      return TRUE;
++      return 1;
+     }
+   r = NSMakeRange(nativeIndex, chunkSize);
+-  forward = TRUE;
++  forward = 1;
+   if (forward)
+     {
+       if (nativeIndex + chunkSize > length)
+@@ -95,7 +95,7 @@
+   ut->chunkNativeLimit = r.location + r.length;
+   ut->chunkLength = r.length;
+   ut->chunkOffset = 0;
+-  return TRUE;
++  return 1;
+ }
+ 
+ /**
+@@ -129,7 +129,7 @@
+   // Setting the chunk length to 0 here forces UTextNSStringAccess to fetch
+   // the data from the string object.
+   ut->chunkLength = 0;
+-  UTextNSStringAccess(ut, r.location + [replacement length] + 1, TRUE);
++  UTextNSStringAccess(ut, r.location + [replacement length] + 1, 1);
+   ut->chunkOffset++;
+   
+   [replacement release];
+diff --color -ur gnustep-base-1.24.6.orig/Source/libgnustep-base-entry.m gnustep-base-1.24.6/Source/libgnustep-base-entry.m
+--- gnustep-base-1.24.6.orig/Source/libgnustep-base-entry.m	2010-02-19 09:12:46.000000000 +0100
++++ gnustep-base-1.24.6/Source/libgnustep-base-entry.m	2021-08-16 20:10:37.553678981 +0200
+@@ -94,7 +94,7 @@
+       }
+     }
+ 
+-  return TRUE;
++  return 1;
+ }
+ 
+ /*
+diff --color -ur gnustep-base-1.24.6.orig/Source/NSFileManager.m gnustep-base-1.24.6/Source/NSFileManager.m
+--- gnustep-base-1.24.6.orig/Source/NSFileManager.m	2013-08-22 17:44:54.000000000 +0200
++++ gnustep-base-1.24.6/Source/NSFileManager.m	2021-08-16 20:11:30.283090180 +0200
+@@ -372,7 +372,7 @@
+       bundleClass = [NSBundle class];
+     }
+ #if defined(__MINGW__)
+-  return SetCurrentDirectoryW(lpath) == TRUE ? YES : NO;
++  return SetCurrentDirectoryW(lpath) == 1 ? YES : NO;
+ #else
+   return (chdir(lpath) == 0) ? YES : NO;
+ #endif
+@@ -825,7 +825,7 @@
+       const _CHAR   *lpath;
+           
+       lpath = [self fileSystemRepresentationWithPath: path];
+-      isDir = (CreateDirectoryW(lpath, 0) != FALSE) ? YES : NO;
++      isDir = (CreateDirectoryW(lpath, 0) != 0) ? YES : NO;
+ #else
+       const char    *lpath;
+ 
+@@ -1418,7 +1418,7 @@
+   if (!is_dir)
+     {
+ #if defined(__MINGW__)
+-      if (DeleteFileW(lpath) == FALSE)
++      if (DeleteFileW(lpath) == 0)
+ #else
+       if (unlink(lpath) < 0)
+ #endif
+@@ -3180,7 +3180,7 @@
+ #if	defined(__MINGW__)
+   DWORD		returnCode = 0;
+   PSID		sidOwner;
+-  int		result = TRUE;
++  int		result = 1;
+   _CHAR		account[BUFSIZ];
+   _CHAR		domain[BUFSIZ];
+   DWORD		accountSize = 1024;
+@@ -3245,7 +3245,7 @@
+     &eUse);
+ 
+   // Check GetLastError for LookupAccountSid error condition.
+-  if (result == FALSE)
++  if (result == 0)
+     {
+       DWORD dwErrorCode = 0;
+ 
+@@ -3337,7 +3337,7 @@
+ #if	defined(__MINGW__)
+   DWORD		returnCode = 0;
+   PSID		sidOwner;
+-  int		result = TRUE;
++  int		result = 1;
+   _CHAR		account[BUFSIZ];
+   _CHAR		domain[BUFSIZ];
+   DWORD		accountSize = 1024;
+@@ -3402,7 +3402,7 @@
+     &eUse);
+ 
+   // Check GetLastError for LookupAccountSid error condition.
+-  if (result == FALSE)
++  if (result == 0)
+     {
+       DWORD dwErrorCode = 0;
+ 
+diff --color -ur gnustep-base-1.24.6.orig/Source/NSPipe.m gnustep-base-1.24.6/Source/NSPipe.m
+--- gnustep-base-1.24.6.orig/Source/NSPipe.m	2011-10-14 17:46:13.000000000 +0200
++++ gnustep-base-1.24.6/Source/NSPipe.m	2021-08-16 20:09:46.684095823 +0200
+@@ -84,7 +84,7 @@
+       HANDLE readh, writeh;
+ 
+       saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+-      saAttr.bInheritHandle = FALSE;
++      saAttr.bInheritHandle = 0;
+       saAttr.lpSecurityDescriptor = NULL;
+ 
+       if (CreatePipe(&readh, &writeh, &saAttr, 0) != 0)
+diff --color -ur gnustep-base-1.24.6.orig/Source/NSRegularExpression.m gnustep-base-1.24.6/Source/NSRegularExpression.m
+--- gnustep-base-1.24.6.orig/Source/NSRegularExpression.m	2013-02-28 17:50:37.000000000 +0100
++++ gnustep-base-1.24.6/Source/NSRegularExpression.m	2021-08-16 20:09:42.824119496 +0200
+@@ -144,7 +144,7 @@
+       return nil;
+     }
+   str = [GSUTextString new];
+-  utext_clone(&str->txt, t, FALSE, TRUE, &s);
++  utext_clone(&str->txt, t, 0, 1, &s);
+   utext_close(t);
+   return [str autorelease];
+ }
+@@ -200,7 +200,7 @@
+ 
+   if (NULL == context)
+     {
+-      return FALSE;
++      return 0;
+     }
+   CALL_BLOCK(block, nil, NSMatchingProgress, &stop);
+   return stop;
+@@ -235,11 +235,11 @@
+   uregex_setRegion(r, range.location, range.location+range.length, &s);
+   if (options & NSMatchingWithoutAnchoringBounds)
+     {
+-      uregex_useAnchoringBounds(r, FALSE, &s);
++      uregex_useAnchoringBounds(r, 0, &s);
+     }
+   if (options & NSMatchingWithTransparentBounds)
+     {
+-      uregex_useTransparentBounds(r, TRUE, &s);
++      uregex_useTransparentBounds(r, 1, &s);
+     }
+   if (U_FAILURE(s))
+     {
+@@ -270,11 +270,11 @@
+   uregex_setRegion(r, range.location, range.location+range.length, &s);
+   if (options & NSMatchingWithoutAnchoringBounds)
+     {
+-      uregex_useAnchoringBounds(r, FALSE, &s);
++      uregex_useAnchoringBounds(r, 0, &s);
+     }
+   if (options & NSMatchingWithTransparentBounds)
+     {
+-      uregex_useTransparentBounds(r, TRUE, &s);
++      uregex_useTransparentBounds(r, 1, &s);
+     }
+   if (U_FAILURE(s))
+     {
+@@ -672,7 +672,7 @@
+   UTextInitWithNSString(&replacement, template);
+ 
+   output = uregex_replaceAllUText(r, &replacement, NULL, &s);
+-  utext_clone(&ret->txt, output, TRUE, TRUE, &s);
++  utext_clone(&ret->txt, output, 1, 1, &s);
+   [string setString: ret];
+   [ret release];
+   uregex_close(r);
+@@ -698,7 +698,7 @@
+   UTextInitWithNSString(&replacement, template);
+ 
+   output = uregex_replaceAllUText(r, &replacement, NULL, &s);
+-  utext_clone(&ret->txt, output, TRUE, TRUE, &s);
++  utext_clone(&ret->txt, output, 1, 1, &s);
+   uregex_close(r);
+ 
+   utext_close(&txt);
+@@ -728,7 +728,7 @@
+   UTextInitWithNSString(&replacement, template);
+ 
+   output = uregex_replaceFirstUText(r, &replacement, NULL, &s);
+-  utext_clone(&ret->txt, output, TRUE, TRUE, &s);
++  utext_clone(&ret->txt, output, 1, 1, &s);
+   uregex_close(r);
+ 
+   utext_close(&txt);
+diff --color -ur gnustep-base-1.24.6.orig/Source/NSThread.m gnustep-base-1.24.6/Source/NSThread.m
+--- gnustep-base-1.24.6.orig/Source/NSThread.m	2013-08-12 10:56:18.000000000 +0200
++++ gnustep-base-1.24.6/Source/NSThread.m	2021-08-16 20:11:37.586332623 +0200
+@@ -932,7 +932,7 @@
+ - (id) init
+ {
+ #ifdef __MINGW__
+-  if ((event = CreateEvent(NULL, TRUE, FALSE, NULL)) == INVALID_HANDLE_VALUE)
++  if ((event = CreateEvent(NULL, 1, 0, NULL)) == INVALID_HANDLE_VALUE)
+     {
+       DESTROY(self);
+       [NSException raise: NSInternalInconsistencyException
+diff --color -ur gnustep-base-1.24.6.orig/Source/win32/GSRunLoopCtxt.m gnustep-base-1.24.6/Source/win32/GSRunLoopCtxt.m
+--- gnustep-base-1.24.6.orig/Source/win32/GSRunLoopCtxt.m	2012-06-06 08:51:26.000000000 +0200
++++ gnustep-base-1.24.6/Source/win32/GSRunLoopCtxt.m	2021-08-16 20:10:27.407109290 +0200
+@@ -440,7 +440,7 @@
+     }
+   else
+     {
+-      SleepEx(wait_timeout, TRUE);
++      SleepEx(wait_timeout, 1);
+       wait_return = WAIT_OBJECT_0;
+     }
+   NSDebugMLLog(@"NSRunLoop", @"wait returned %d", wait_return);
+diff --color -ur gnustep-base-1.24.6.orig/Source/win32/NSMessagePort.m gnustep-base-1.24.6/Source/win32/NSMessagePort.m
+--- gnustep-base-1.24.6.orig/Source/win32/NSMessagePort.m	2013-08-22 17:44:54.000000000 +0200
++++ gnustep-base-1.24.6/Source/win32/NSMessagePort.m	2021-08-16 20:10:23.187147783 +0200
+@@ -165,7 +165,7 @@
+ 	}
+       else
+ 	{
+-	  this->wEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
++	  this->wEvent = CreateEvent(NULL, 0, 0, NULL);
+ 	  this->wMsgs = [NSMutableArray new];
+ 	  result = YES;
+ 	}
+@@ -190,7 +190,7 @@
+       [[NSObject leakAt: &messagePortLock] release];
+       security.nLength = sizeof(SECURITY_ATTRIBUTES);
+       security.lpSecurityDescriptor = 0;	// Default
+-      security.bInheritHandle = FALSE;
++      security.bInheritHandle = 0;
+     }
+ }
+ 
+@@ -314,7 +314,7 @@
+   this->wEvent = INVALID_HANDLE_VALUE;
+ 
+   this->rState = RS_NONE;
+-  this->rEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
++  this->rEvent = CreateEvent(NULL, 0, 0, NULL);
+   this->rData = [NSMutableData new];
+   this->rMsgs = [NSMutableArray new];
+ 
+@@ -502,7 +502,7 @@
+ 	this->rHandle,
+ 	&this->rOv,
+ 	&this->rSize,
+-	TRUE) == 0)
++	1) == 0)
+ 	{
+ 	  errno = GetLastError();
+ 	  NSDebugMLLog(@"NSMessagePort", @"overlapped result=%d", errno);
+@@ -814,7 +814,7 @@
+ 	this->wHandle,
+ 	&this->wOv,
+ 	&this->wSize,
+-	TRUE) == 0)
++	1) == 0)
+ 	{
+ 	  NSLog(@"GetOverlappedResult failed ... %@", [NSError _last]);
+ 	}
+diff --color -ur gnustep-base-1.24.6.orig/Source/win32/NSMessagePortNameServer.m gnustep-base-1.24.6/Source/win32/NSMessagePortNameServer.m
+--- gnustep-base-1.24.6.orig/Source/win32/NSMessagePortNameServer.m	2013-08-22 17:44:54.000000000 +0200
++++ gnustep-base-1.24.6/Source/win32/NSMessagePortNameServer.m	2021-08-16 20:09:50.154073466 +0200
+@@ -101,7 +101,7 @@
+ 
+       security.nLength = sizeof(SECURITY_ATTRIBUTES);
+       security.lpSecurityDescriptor = 0;	// Default
+-      security.bInheritHandle = FALSE;
++      security.bInheritHandle = 0;
+ 
+       registry = @"Software\\GNUstepNSMessagePort";
+       rc = RegCreateKeyExW(
+diff --color -ur gnustep-base-1.24.6.orig/Source/win32/NSStream.m gnustep-base-1.24.6/Source/win32/NSStream.m
+--- gnustep-base-1.24.6.orig/Source/win32/NSStream.m	2011-07-15 15:53:45.000000000 +0200
++++ gnustep-base-1.24.6/Source/win32/NSStream.m	2021-08-16 20:10:09.147267478 +0200
+@@ -325,7 +325,7 @@
+ {
+   if (_loopID == (void*)INVALID_HANDLE_VALUE)
+     {
+-      _loopID = (void*)CreateEvent(NULL, FALSE, FALSE, NULL);
++      _loopID = (void*)CreateEvent(NULL, 0, 0, NULL);
+     }
+   [super open];
+   [self _queue];
+@@ -335,7 +335,7 @@
+ {
+   // Must only be called when current status is NSStreamStatusReading.
+ 
+-  if (GetOverlappedResult(handle, &ov, &size, TRUE) == 0)
++  if (GetOverlappedResult(handle, &ov, &size, 1) == 0)
+     {
+       if ((errno = GetLastError()) == ERROR_HANDLE_EOF
+ 	|| errno == ERROR_PIPE_NOT_CONNECTED
+@@ -753,7 +753,7 @@
+ {
+   if (_loopID == (void*)INVALID_HANDLE_VALUE)
+     {
+-      _loopID = (void*)CreateEvent(NULL, FALSE, FALSE, NULL);
++      _loopID = (void*)CreateEvent(NULL, 0, 0, NULL);
+     }
+   [super open];
+ }
+@@ -842,7 +842,7 @@
+ - (NSStreamStatus) _check
+ {
+   // Must only be called when current status is NSStreamStatusWriting.
+-  if (GetOverlappedResult(handle, &ov, &size, TRUE) == 0)
++  if (GetOverlappedResult(handle, &ov, &size, 1) == 0)
+     {
+       errno = GetLastError();
+       if (errno != ERROR_IO_PENDING)
+@@ -1015,7 +1015,7 @@
+     fileSystemRepresentation];
+ 
+   saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+-  saAttr.bInheritHandle = FALSE;
++  saAttr.bInheritHandle = 0;
+   saAttr.lpSecurityDescriptor = NULL;
+ 
+   handle = CreateFileW(name,
+@@ -1066,7 +1066,7 @@
+   int rc;
+ 
+   saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+-  saAttr.bInheritHandle = FALSE;
++  saAttr.bInheritHandle = 0;
+   saAttr.lpSecurityDescriptor = NULL;
+ 
+   /*
+@@ -1345,7 +1345,7 @@
+   NSAssert(handle == INVALID_HANDLE_VALUE, NSInternalInconsistencyException);
+ 
+   saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+-  saAttr.bInheritHandle = FALSE;
++  saAttr.bInheritHandle = 0;
+   saAttr.lpSecurityDescriptor = NULL;
+ 
+   handle = CreateNamedPipeW([path fileSystemRepresentation],
+@@ -1448,7 +1448,7 @@
+ {
+   DWORD		size;
+ 
+-  if (GetOverlappedResult(handle, &ov, &size, TRUE) == 0)
++  if (GetOverlappedResult(handle, &ov, &size, 1) == 0)
+     {
+       [self _recordError];
+       [self _sendEvent: NSStreamEventErrorOccurred];

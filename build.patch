@@ -1,0 +1,11 @@
+--- gnustep-base-1.24.6/Source/Additions/GSXML.m~	2025-07-24 22:30:31.000000000 +0200
++++ gnustep-base-1.24.6/Source/Additions/GSXML.m	2025-07-24 22:31:05.229312636 +0200
+@@ -2986,7 +2986,7 @@ warningFunction(void *ctx, const unsigne
+   va_end(args);
+ 
+   NSCAssert(ctx,@"No Context");
+-  lineNumber = getLineNumber(ctx);
++  lineNumber = xmlSAX2GetLineNumber(ctx);
+   colNumber = xmlSAX2GetColumnNumber(ctx);
+   [HANDLER warning: estr
+ 	 colNumber: colNumber

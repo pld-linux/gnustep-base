@@ -24,6 +24,7 @@ Patch0:		%{name}-pass-arguments.patch
 Patch1:		%{name}-ac.patch
 Patch2:		%{name}-link.patch
 Patch3:		%{name}-icu68.patch
+Patch4:		build.patch
 URL:		http://www.gnustep.org/
 BuildRequires:	autoconf >= 2.60
 BuildRequires:	avahi-devel
@@ -95,6 +96,7 @@ podstawowej biblioteki GNUstep.
 %patch -P1 -p1
 %patch -P2 -p1
 %patch -P3 -p1
+%patch -P4 -p1
 
 %build
 %{__autoconf} -Iconfig
